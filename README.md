@@ -2,7 +2,7 @@
 
 A lightweight Windows utility that lets you instantly translate clipboard text using a global keyboard shortcut. Choose between Google Translate or Yandex Translate and get instant translations from any application.
 
-![MiniTranslator Screenshot](https://i.imgur.com/your-screenshot.png) <!-- It's recommended to add a real screenshot of your app's settings window -->
+<img src="https://i.ibb.co/4w3WJvtr/Mini-Translate-Screenshot.png" width="450" />
 
 ## Features
 
