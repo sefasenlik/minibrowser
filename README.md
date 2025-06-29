@@ -2,7 +2,7 @@
 
 A powerful Windows utility that provides instant, high-quality translations using global keyboard shortcuts. MiniTranslate supports multiple translation services including AI-powered ChatGPT, with intelligent language detection and a modern web interface.
 
-<img src="https://i.ibb.co/4w3WJvtr/Mini-Translate-Screenshot.png" width="450" />
+<img src="https://gcdnb.pbrd.co/images/38DcE19tdp5j.png" width="450" />
 
 ## 🌟 Key Features
 
