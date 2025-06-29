@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MiniTranslate Admin Panel</title>
+    <style>
+        body { font-family: sans-serif; background: #181818; color: #fff; margin: 0; padding: 0; }
+        .container { max-width: 900px; margin: 40px auto; background: #232323; border-radius: 8px; box-shadow: 0 2px 12px #0008; padding: 32px; }
+        h1 { text-align: center; }
+        form { display: flex; gap: 10px; margin-bottom: 24px; }
+        input, button { padding: 8px; border-radius: 4px; border: none; }
+        input { flex: 1; }
+        button { background: #4f8cff; color: #fff; font-weight: bold; cursor: pointer; }
+        button:hover { background: #2563eb; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { padding: 8px; text-align: left; }
+        th { background: #333; cursor: pointer; }
+        tr:nth-child(even) { background: #222; }
+        .error { color: #ff6b6b; margin-bottom: 10px; }
+        .success { color: #00ff88; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>MiniTranslate Admin Panel</h1>
+    <div id="auth" style="display:none;">
+        <label>Admin Password: <input type="password" id="adminPass"></label>
+        <button onclick="login()">Login</button>
+        <div class="error" id="authError"></div>
+    </div>
+    <div id="panel" style="display:none;">
+        <form id="addUserForm">
+            <input type="text" id="name" placeholder="Name" required>
+            <input type="text" id="surname" placeholder="Surname" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="text" id="token" placeholder="Token" required>
+            <button type="submit">Add User</button>
+        </form>
+        <div class="error" id="formError"></div>
+        <div class="success" id="formSuccess"></div>
+        <table id="usersTable">
+            <thead>
+                <tr>
+                    <th onclick="sortUsers('name')">Name</th>
+                    <th onclick="sortUsers('surname')">Surname</th>
+                    <th onclick="sortUsers('email')">Email</th>
+                    <th onclick="sortUsers('token')">Token</th>
+                    <th onclick="sortUsers('usage')">Usage (chars)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<script>
+let adminPass = '';
+let users = [];
+let sortKey = 'usage';
+let sortDesc = true;
+
+function login() {
+    adminPass = document.getElementById('adminPass').value;
+    loadUsers();
+}
+
+function showAuth() {
+    document.getElementById('auth').style.display = '';
+    document.getElementById('panel').style.display = 'none';
+}
+function showPanel() {
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('panel').style.display = '';
+}
+
+function loadUsers() {
+    fetch('/admin/users', { headers: { Authorization: adminPass } })
+        .then(r => {
+            if (!r.ok) throw new Error('Auth failed');
+            return r.json();
+        })
+        .then(data => {
+            users = data;
+            showPanel();
+            renderUsers();
+            document.getElementById('authError').textContent = '';
+        })
+        .catch(() => {
+            showAuth();
+            document.getElementById('authError').textContent = 'Invalid password';
+        });
+}
+
+function renderUsers() {
+    const tbody = document.querySelector('#usersTable tbody');
+    tbody.innerHTML = '';
+    let sorted = [...users].sort((a, b) => {
+        if (sortKey === 'usage') return (sortDesc ? b.usage - a.usage : a.usage - b.usage);
+        return (a[sortKey] || '').localeCompare(b[sortKey] || '') * (sortDesc ? -1 : 1);
+    });
+    for (const u of sorted) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${u.name}</td><td>${u.surname}</td><td>${u.email}</td><td>${u.token}</td><td>${u.usage||0}</td>`;
+        tbody.appendChild(tr);
+    }
+}
+
+function sortUsers(key) {
+    if (sortKey === key) sortDesc = !sortDesc;
+    else { sortKey = key; sortDesc = true; }
+    renderUsers();
+}
+
+document.getElementById('addUserForm').onsubmit = function(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const surname = document.getElementById('surname').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const token = document.getElementById('token').value.trim();
+    fetch('/admin/adduser', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: adminPass },
+        body: JSON.stringify({ name, surname, email, token })
+    })
+    .then(r => r.json())
+    .then(resp => {
+        if (resp.error) throw new Error(resp.error);
+        document.getElementById('formSuccess').textContent = 'User added!';
+        document.getElementById('formError').textContent = '';
+        loadUsers();
+        document.getElementById('addUserForm').reset();
+    })
+    .catch(err => {
+        document.getElementById('formError').textContent = err.message;
+        document.getElementById('formSuccess').textContent = '';
+    });
+};
+
+// On load, prompt for password
+showAuth();
+</script>
+</body>
+</html> 

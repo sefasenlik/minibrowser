@@ -2,9 +2,10 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.IO;
+using System.Linq;
 using Microsoft.Win32;
 
-namespace MiniTranslator
+namespace MiniTranslate
 {
     public partial class SettingsForm : Form
     {
@@ -27,6 +28,17 @@ namespace MiniTranslator
         private Button cancelButton;
         private Button testButton;
         private CheckBox startupCheckBox;
+        private TextBox chatGptApiKeyTextBox;
+        private Label chatGptApiKeyLabel;
+        private TextBox translationServerUrlTextBox;
+        private Label translationServerUrlLabel;
+        private TextBox translationServerTokenTextBox;
+        private Label translationServerTokenLabel;
+        private GroupBox apiGroupBox;
+        private GroupBox languageGroupBox;
+        private GroupBox hotkeyGroupBox;
+        private GroupBox windowSizeGroupBox;
+        private CheckBox autoSwitchLanguagesCheckBox;
 
         // Hotkey modifiers
         private const int MOD_CONTROL = 0x0002;
@@ -34,7 +46,7 @@ namespace MiniTranslator
         private const int MOD_SHIFT = 0x0004;
         private const int MOD_WIN = 0x0008;
 
-        private const string AppName = "MiniTranslator";
+        private const string AppName = "MiniTranslate";
         private static readonly RegistryKey StartupRegistryKey = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
 
         public SettingsForm(AppSettings currentSettings)
@@ -48,7 +60,12 @@ namespace MiniTranslator
                 PreferredTranslator = currentSettings.PreferredTranslator,
                 WindowWidth = currentSettings.WindowWidth,
                 WindowHeight = currentSettings.WindowHeight,
-                PreferredBrowser = currentSettings.PreferredBrowser
+                PreferredBrowser = currentSettings.PreferredBrowser,
+                ChatGptApiKey = currentSettings.ChatGptApiKey,
+                ChatGptApiServerUrl = currentSettings.ChatGptApiServerUrl,
+                TranslationServerUrl = currentSettings.TranslationServerUrl,
+                TranslationServerToken = currentSettings.TranslationServerToken,
+                AutoSwitchLanguages = currentSettings.AutoSwitchLanguages
             };
 
             InitializeComponent();
@@ -57,74 +74,307 @@ namespace MiniTranslator
 
         private void InitializeComponent()
         {
-            this.Text = "MiniTranslator Settings";
-            this.Size = new Size(490, 460);
+            this.Text = "MiniTranslate Settings";
+            this.Size = new Size(520, 700);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.StartPosition = FormStartPosition.CenterScreen;
+            this.Padding = new Padding(10);
 
             // Translator selection
             var translatorLabel = new Label
             {
                 Text = "Translation Service:",
-                Location = new Point(20, 20),
-                Size = new Size(120, 23),
+                Location = new Point(20, 15),
+                Size = new Size(140, 23),
                 Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold)
             };
             this.Controls.Add(translatorLabel);
 
             translatorComboBox = new ComboBox
             {
-                Location = new Point(145, 20),
-                Size = new Size(120, 23),
+                Location = new Point(170, 15),
+                Size = new Size(180, 23),
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
             translatorComboBox.Items.Add("Yandex Translate");
             translatorComboBox.Items.Add("Google Translate");
+            translatorComboBox.Items.Add("ChatGPT Translator");
+            translatorComboBox.Items.Add("Translation Server");
+            translatorComboBox.SelectedIndexChanged += TranslatorComboBox_SelectedIndexChanged;
             this.Controls.Add(translatorComboBox);
 
-            // Translation settings
+            // API Group
+            apiGroupBox = new GroupBox
+            {
+                Text = "API Settings",
+                Location = new Point(10, 50),
+                Size = new Size(490, 135)
+            };
+            this.Controls.Add(apiGroupBox);
+
+            chatGptApiKeyLabel = new Label
+            {
+                Text = "ChatGPT API Key:",
+                Location = new Point(15, 25),
+                Size = new Size(120, 23)
+            };
+            apiGroupBox.Controls.Add(chatGptApiKeyLabel);
+
+            chatGptApiKeyTextBox = new TextBox
+            {
+                Location = new Point(140, 25),
+                Size = new Size(310, 23),
+                UseSystemPasswordChar = true
+            };
+            apiGroupBox.Controls.Add(chatGptApiKeyTextBox);
+
+            translationServerUrlLabel = new Label
+            {
+                Text = "Translation Server:",
+                Location = new Point(15, 70),
+                Size = new Size(120, 23)
+            };
+            apiGroupBox.Controls.Add(translationServerUrlLabel);
+
+            translationServerUrlTextBox = new TextBox
+            {
+                Location = new Point(140, 70),
+                Size = new Size(310, 23)
+            };
+            apiGroupBox.Controls.Add(translationServerUrlTextBox);
+
+            translationServerTokenLabel = new Label
+            {
+                Text = "Server Token:",
+                Location = new Point(15, 95),
+                Size = new Size(120, 23)
+            };
+            apiGroupBox.Controls.Add(translationServerTokenLabel);
+
+            translationServerTokenTextBox = new TextBox
+            {
+                Location = new Point(140, 95),
+                Size = new Size(310, 23),
+                UseSystemPasswordChar = true
+            };
+            apiGroupBox.Controls.Add(translationServerTokenTextBox);
+
+            // Language Group
+            languageGroupBox = new GroupBox
+            {
+                Text = "Languages",
+                Location = new Point(10, 195),
+                Size = new Size(480, 110)
+            };
+            this.Controls.Add(languageGroupBox);
+
             var sourceLabel = new Label
             {
                 Text = "Source Language:",
-                Location = new Point(20, 55),
+                Location = new Point(15, 30),
                 Size = new Size(110, 23)
             };
-            this.Controls.Add(sourceLabel);
+            languageGroupBox.Controls.Add(sourceLabel);
 
             sourceLanguageCombo = new ComboBox
             {
-                Location = new Point(135, 55),
-                Size = new Size(85, 23),
+                Location = new Point(130, 30),
+                Size = new Size(100, 23),
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
-            this.Controls.Add(sourceLanguageCombo);
+            languageGroupBox.Controls.Add(sourceLanguageCombo);
 
             var targetLabel = new Label
             {
                 Text = "Target Language:",
-                Location = new Point(235, 55),
+                Location = new Point(250, 30),
                 Size = new Size(110, 23)
             };
-            this.Controls.Add(targetLabel);
+            languageGroupBox.Controls.Add(targetLabel);
 
             targetLanguageCombo = new ComboBox
             {
-                Location = new Point(350, 55),
-                Size = new Size(85, 23),
+                Location = new Point(365, 30),
+                Size = new Size(100, 23),
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
-            this.Controls.Add(targetLanguageCombo);
+            languageGroupBox.Controls.Add(targetLanguageCombo);
 
             // Populate language combo boxes after they're created and added
             PopulateLanguageComboBoxes();
+
+            // Auto-switch languages checkbox
+            autoSwitchLanguagesCheckBox = new CheckBox
+            {
+                Text = "Auto-switch languages based on detected text script",
+                Location = new Point(15, 65),
+                Size = new Size(400, 23),
+                Checked = true
+            };
+            languageGroupBox.Controls.Add(autoSwitchLanguagesCheckBox);
+
+            // Hotkey Group
+            hotkeyGroupBox = new GroupBox
+            {
+                Text = "Global Hotkey",
+                Location = new Point(10, 315),
+                Size = new Size(480, 100)
+            };
+            this.Controls.Add(hotkeyGroupBox);
+
+            ctrlCheckBox = new CheckBox
+            {
+                Text = "Ctrl",
+                Location = new Point(15, 30),
+                Size = new Size(50, 23)
+            };
+            ctrlCheckBox.CheckedChanged += UpdateCurrentHotkeyDisplay;
+            hotkeyGroupBox.Controls.Add(ctrlCheckBox);
+
+            altCheckBox = new CheckBox
+            {
+                Text = "Alt",
+                Location = new Point(70, 30),
+                Size = new Size(45, 23)
+            };
+            altCheckBox.CheckedChanged += UpdateCurrentHotkeyDisplay;
+            hotkeyGroupBox.Controls.Add(altCheckBox);
+
+            shiftCheckBox = new CheckBox
+            {
+                Text = "Shift",
+                Location = new Point(125, 30),
+                Size = new Size(50, 23)
+            };
+            shiftCheckBox.CheckedChanged += UpdateCurrentHotkeyDisplay;
+            hotkeyGroupBox.Controls.Add(shiftCheckBox);
+
+            winCheckBox = new CheckBox
+            {
+                Text = "Win",
+                Location = new Point(180, 30),
+                Size = new Size(55, 23)
+            };
+            winCheckBox.CheckedChanged += UpdateCurrentHotkeyDisplay;
+            hotkeyGroupBox.Controls.Add(winCheckBox);
+
+            // Key selection (inside hotkey group)
+            var keyLabel = new Label
+            {
+                Text = "Key:",
+                Location = new Point(250, 30),
+                Size = new Size(30, 23)
+            };
+            hotkeyGroupBox.Controls.Add(keyLabel);
+
+            keyComboBox = new ComboBox
+            {
+                Location = new Point(285, 30),
+                Size = new Size(60, 23),
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            keyComboBox.SelectedIndexChanged += UpdateCurrentHotkeyDisplay;
+            hotkeyGroupBox.Controls.Add(keyComboBox);
+
+            PopulateKeyComboBox();
+
+            // Current hotkey display (inside hotkey group)
+            var currentLabel = new Label
+            {
+                Text = "Current: Ctrl+Q",
+                Location = new Point(15, 65),
+                Size = new Size(200, 20),
+                ForeColor = Color.Blue
+            };
+            currentLabel.Name = "currentLabel";
+            hotkeyGroupBox.Controls.Add(currentLabel);
+
+            // Browser selection
+            var browserLabel = new Label
+            {
+                Text = "Preferred Browser:",
+                Location = new Point(20, 430),
+                Size = new Size(120, 23),
+                Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold)
+            };
+            this.Controls.Add(browserLabel);
+
+            browserComboBox = new ComboBox
+            {
+                Location = new Point(145, 430),
+                Size = new Size(120, 23),
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            browserComboBox.Items.Add("Chrome");
+            browserComboBox.Items.Add("Edge");
+            browserComboBox.Items.Add("Default Browser");
+            this.Controls.Add(browserComboBox);
+
+            // Window Size Group
+            windowSizeGroupBox = new GroupBox
+            {
+                Text = "Window Size",
+                Location = new Point(10, 465),
+                Size = new Size(480, 80)
+            };
+            this.Controls.Add(windowSizeGroupBox);
+
+            widthLabel = new Label
+            {
+                Text = "Width:",
+                Location = new Point(15, 30),
+                Size = new Size(50, 23)
+            };
+            windowSizeGroupBox.Controls.Add(widthLabel);
+
+            widthSlider = new TrackBar
+            {
+                Location = new Point(70, 30),
+                Size = new Size(180, 23),
+                Minimum = 400,
+                Maximum = 1600,
+                TickFrequency = 100,
+                Value = 1200
+            };
+            widthSlider.ValueChanged += WidthSlider_ValueChanged;
+            windowSizeGroupBox.Controls.Add(widthSlider);
+
+            heightLabel = new Label
+            {
+                Text = "Height:",
+                Location = new Point(270, 30),
+                Size = new Size(50, 23)
+            };
+            windowSizeGroupBox.Controls.Add(heightLabel);
+
+            heightSlider = new TrackBar
+            {
+                Location = new Point(325, 30),
+                Size = new Size(120, 23),
+                Minimum = 300,
+                Maximum = 1000,
+                TickFrequency = 100,
+                Value = 800
+            };
+            heightSlider.ValueChanged += HeightSlider_ValueChanged;
+            windowSizeGroupBox.Controls.Add(heightSlider);
+
+            // Startup Checkbox
+            startupCheckBox = new CheckBox
+            {
+                Text = "Run at Windows startup",
+                Location = new Point(20, 560),
+                Size = new Size(180, 23)
+            };
+            this.Controls.Add(startupCheckBox);
 
             // Test button
             testButton = new Button
             {
                 Text = "Test Translation",
-                Location = new Point(20, 340),
+                Location = new Point(20, 595),
                 Size = new Size(120, 30),
                 BackColor = Color.FromArgb(225, 240, 255),
                 FlatStyle = FlatStyle.Flat,
@@ -134,177 +384,11 @@ namespace MiniTranslator
             testButton.Click += TestButton_Click;
             this.Controls.Add(testButton);
 
-            // Hotkey section
-            var hotkeyLabel = new Label
-            {
-                Text = "Global Hotkey:",
-                Location = new Point(20, 130),
-                Size = new Size(100, 23),
-                Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold)
-            };
-            this.Controls.Add(hotkeyLabel);
-
-            // Modifier checkboxes
-            ctrlCheckBox = new CheckBox
-            {
-                Text = "Ctrl",
-                Location = new Point(30, 155),
-                Size = new Size(50, 23)
-            };
-            ctrlCheckBox.CheckedChanged += UpdateCurrentHotkeyDisplay;
-            this.Controls.Add(ctrlCheckBox);
-
-            altCheckBox = new CheckBox
-            {
-                Text = "Alt",
-                Location = new Point(85, 155),
-                Size = new Size(45, 23)
-            };
-            altCheckBox.CheckedChanged += UpdateCurrentHotkeyDisplay;
-            this.Controls.Add(altCheckBox);
-
-            shiftCheckBox = new CheckBox
-            {
-                Text = "Shift",
-                Location = new Point(135, 155),
-                Size = new Size(50, 23)
-            };
-            shiftCheckBox.CheckedChanged += UpdateCurrentHotkeyDisplay;
-            this.Controls.Add(shiftCheckBox);
-
-            winCheckBox = new CheckBox
-            {
-                Text = "Win",
-                Location = new Point(190, 155),
-                Size = new Size(55, 23)
-            };
-            winCheckBox.CheckedChanged += UpdateCurrentHotkeyDisplay;
-            this.Controls.Add(winCheckBox);
-
-            // Key selection
-            var keyLabel = new Label
-            {
-                Text = "Key:",
-                Location = new Point(250, 155),
-                Size = new Size(30, 23)
-            };
-            this.Controls.Add(keyLabel);
-
-            keyComboBox = new ComboBox
-            {
-                Location = new Point(285, 155),
-                Size = new Size(60, 23),
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            keyComboBox.SelectedIndexChanged += UpdateCurrentHotkeyDisplay;
-            this.Controls.Add(keyComboBox);
-
-            PopulateKeyComboBox();
-
-            // Browser selection
-            var browserLabel = new Label
-            {
-                Text = "Preferred Browser:",
-                Location = new Point(20, 190),
-                Size = new Size(120, 23),
-                Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold)
-            };
-            this.Controls.Add(browserLabel);
-
-            browserComboBox = new ComboBox
-            {
-                Location = new Point(145, 190),
-                Size = new Size(120, 23),
-                DropDownStyle = ComboBoxStyle.DropDownList
-            };
-            browserComboBox.Items.Add("Chrome");
-            browserComboBox.Items.Add("Edge");
-            browserComboBox.Items.Add("Default Browser");
-            this.Controls.Add(browserComboBox);
-
-            // Window Size section
-            var windowSizeLabel = new Label
-            {
-                Text = "Browser Window Size:",
-                Location = new Point(20, 225),
-                Size = new Size(150, 23)
-            };
-            this.Controls.Add(windowSizeLabel);
-
-            // Width slider
-            var widthSizeLabel = new Label
-            {
-                Text = "Width:",
-                Location = new Point(20, 250),
-                Size = new Size(50, 23)
-            };
-            this.Controls.Add(widthSizeLabel);
-
-            widthSlider = new TrackBar
-            {
-                Location = new Point(75, 250),
-                Size = new Size(200, 45),
-                Minimum = 300,
-                Maximum = 1920,
-                Value = 1200,
-                TickFrequency = 100
-            };
-            widthSlider.ValueChanged += WidthSlider_ValueChanged;
-            this.Controls.Add(widthSlider);
-
-            widthLabel = new Label
-            {
-                Text = "1200px",
-                Location = new Point(285, 260),
-                Size = new Size(60, 23)
-            };
-            this.Controls.Add(widthLabel);
-
-            // Height slider
-            var heightSizeLabel = new Label
-            {
-                Text = "Height:",
-                Location = new Point(20, 290),
-                Size = new Size(50, 23)
-            };
-            this.Controls.Add(heightSizeLabel);
-
-            heightSlider = new TrackBar
-            {
-                Location = new Point(75, 290),
-                Size = new Size(200, 45),
-                Minimum = 300,
-                Maximum = 1080,
-                Value = 800,
-                TickFrequency = 50
-            };
-            heightSlider.ValueChanged += HeightSlider_ValueChanged;
-            this.Controls.Add(heightSlider);
-
-            heightLabel = new Label
-            {
-                Text = "800px",
-                Location = new Point(285, 300),
-                Size = new Size(60, 23)
-            };
-            this.Controls.Add(heightLabel);
-
-            // Current hotkey display
-            var currentLabel = new Label
-            {
-                Text = "Current: Ctrl+Q",
-                Location = new Point(355, 155),
-                Size = new Size(100, 20),
-                ForeColor = Color.Blue
-            };
-            currentLabel.Name = "currentLabel";
-            this.Controls.Add(currentLabel);
-
             // Buttons
             okButton = new Button
             {
                 Text = "OK",
-                Location = new Point(295, 340),
+                Location = new Point(295, 595),
                 Size = new Size(75, 30)
             };
             okButton.DialogResult = DialogResult.OK;
@@ -314,20 +398,11 @@ namespace MiniTranslator
             cancelButton = new Button
             {
                 Text = "Cancel",
-                Location = new Point(380, 340),
+                Location = new Point(380, 595),
                 Size = new Size(75, 30)
             };
             cancelButton.DialogResult = DialogResult.Cancel;
             this.Controls.Add(cancelButton);
-
-            // Startup Checkbox
-            startupCheckBox = new CheckBox
-            {
-                Text = "Run at Windows startup",
-                Location = new Point(20, 380),
-                Size = new Size(180, 23)
-            };
-            this.Controls.Add(startupCheckBox);
 
             // Load initial state
             LoadStartupState();
@@ -373,9 +448,14 @@ namespace MiniTranslator
         {
             // Load translator selection
             translatorComboBox.SelectedIndex = (int)Settings.PreferredTranslator;
-            
-            // Load browser selection
-            browserComboBox.SelectedIndex = (int)Settings.PreferredBrowser;
+            // Enable/disable API key field
+            bool isChatGpt = Settings.PreferredTranslator == TranslatorType.ChatGPT;
+            chatGptApiKeyTextBox.Enabled = isChatGpt;
+            chatGptApiKeyLabel.Enabled = isChatGpt;
+            // Load API key
+            chatGptApiKeyTextBox.Text = Settings.ChatGptApiKey;
+            translationServerUrlTextBox.Text = Settings.TranslationServerUrl;
+            translationServerTokenTextBox.Text = Settings.TranslationServerToken;
             
             widthSlider.Value = Math.Max(widthSlider.Minimum, Math.Min(widthSlider.Maximum, Settings.WindowWidth));
             heightSlider.Value = Math.Max(heightSlider.Minimum, Math.Min(heightSlider.Maximum, Settings.WindowHeight));
@@ -411,12 +491,15 @@ namespace MiniTranslator
             // Load browser setting
             browserComboBox.SelectedIndex = (int)Settings.PreferredBrowser;
             
+            // Load auto-switch languages setting
+            autoSwitchLanguagesCheckBox.Checked = Settings.AutoSwitchLanguages;
+            
             UpdateCurrentHotkeyDisplay(null, null);
         }
 
         private void UpdateCurrentHotkeyDisplay(object sender, EventArgs e)
         {
-            var currentLabel = this.Controls.Find("currentLabel", false)[0] as Label;
+            var currentLabel = hotkeyGroupBox.Controls.Find("currentLabel", false).FirstOrDefault() as Label;
             if (currentLabel != null)
             {
                 var parts = new System.Collections.Generic.List<string>();
@@ -444,7 +527,7 @@ namespace MiniTranslator
                 if (string.IsNullOrEmpty(clipboardText))
                 {
                     MessageBox.Show("No text found in clipboard to test translation. Copy some text and try again.", 
-                        "MiniTranslator", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        "MiniTranslate", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
@@ -454,7 +537,7 @@ namespace MiniTranslator
                 if (sourceItem == null || targetItem == null)
                 {
                     MessageBox.Show("Please select both source and target languages.", 
-                        "MiniTranslator", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        "MiniTranslate", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -483,7 +566,7 @@ namespace MiniTranslator
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to open: {ex.Message}", "MiniTranslator", 
+                MessageBox.Show($"Failed to open: {ex.Message}", "MiniTranslate", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -665,21 +748,21 @@ namespace MiniTranslator
             if (sourceLanguageCombo.SelectedItem == null || targetLanguageCombo.SelectedItem == null)
             {
                 MessageBox.Show("Please select both source and target languages.", 
-                    "MiniTranslator", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    "MiniTranslate", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             
             if (translatorComboBox.SelectedIndex == -1)
             {
                 MessageBox.Show("Please select a translation service.", 
-                    "MiniTranslator", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    "MiniTranslate", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             // Validate hotkey
             if (keyComboBox.SelectedItem == null)
             {
-                MessageBox.Show("Please select a key for the hotkey.", "MiniTranslator", 
+                MessageBox.Show("Please select a key for the hotkey.", "MiniTranslate", 
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -687,7 +770,7 @@ namespace MiniTranslator
             if (!ctrlCheckBox.Checked && !altCheckBox.Checked && !shiftCheckBox.Checked && !winCheckBox.Checked)
             {
                 MessageBox.Show("Please select at least one modifier key (Ctrl, Alt, Shift, or Win).", 
-                    "MiniTranslator", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    "MiniTranslate", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -712,8 +795,37 @@ namespace MiniTranslator
             // Save browser setting
             Settings.PreferredBrowser = (BrowserType)browserComboBox.SelectedIndex;
 
+            // Save API key
+            Settings.ChatGptApiKey = chatGptApiKeyTextBox.Text.Trim();
+            Settings.TranslationServerUrl = translationServerUrlTextBox.Text.Trim();
+            Settings.TranslationServerToken = translationServerTokenTextBox.Text.Trim();
+
+            // Save auto-switch languages setting
+            Settings.AutoSwitchLanguages = autoSwitchLanguagesCheckBox.Checked;
+
             // Handle Startup setting
             SetStartup(startupCheckBox.Checked);
+        }
+
+        private void TranslatorComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateTranslatorFields();
+        }
+
+        private void UpdateTranslatorFields()
+        {
+            bool isChatGpt = translatorComboBox.SelectedIndex == 2;
+            bool isTranslationServer = translatorComboBox.SelectedIndex == 3;
+            
+            // ChatGPT fields
+            chatGptApiKeyTextBox.Enabled = isChatGpt;
+            chatGptApiKeyLabel.Enabled = isChatGpt;
+            
+            // Translation Server fields
+            translationServerUrlLabel.Enabled = isTranslationServer;
+            translationServerUrlTextBox.Enabled = isTranslationServer;
+            translationServerTokenLabel.Enabled = isTranslationServer;
+            translationServerTokenTextBox.Enabled = isTranslationServer;
         }
     }
 } 

@@ -3,7 +3,7 @@ using System.IO;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 
-namespace MiniTranslator
+namespace MiniTranslate
 {
     public enum BrowserType
     {
@@ -15,7 +15,9 @@ namespace MiniTranslator
     public enum TranslatorType
     {
         Yandex,
-        Google
+        Google,
+        ChatGPT,
+        TranslationServer
     }
 
     public class AppSettings
@@ -28,6 +30,11 @@ namespace MiniTranslator
         public int WindowWidth { get; set; } = 1200;
         public int WindowHeight { get; set; } = 800;
         public BrowserType PreferredBrowser { get; set; } = BrowserType.Chrome;
+        public string ChatGptApiKey { get; set; } = string.Empty;
+        public string ChatGptApiServerUrl { get; set; } = "http://localhost:3000";
+        public string TranslationServerUrl { get; set; } = "http://localhost:3333";
+        public bool AutoSwitchLanguages { get; set; } = true;
+        public string TranslationServerToken { get; set; } = string.Empty;
 
         // Legacy properties for backward compatibility
         [JsonIgnore]
@@ -37,7 +44,7 @@ namespace MiniTranslator
 
         private static readonly string SettingsPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "MiniTranslator",
+            "MiniTranslate",
             "settings.json");
 
         public static AppSettings Load()
@@ -53,7 +60,7 @@ namespace MiniTranslator
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to load settings: {ex.Message}. Using defaults.",
-                    "MiniTranslator", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    "MiniTranslate", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
             return new AppSettings();
@@ -75,7 +82,7 @@ namespace MiniTranslator
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to save settings: {ex.Message}",
-                    "MiniTranslator", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    "MiniTranslate", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

@@ -1,12 +1,12 @@
-# MiniTranslator - Installation & User Guide
+# MiniTranslate - Installation & User Guide
 
 A lightweight utility for instant, hotkey-based text translation.
 
 ## Quick Start
 
-1.  **Download**: Go to the [Releases](../../releases) page and download the latest `MiniTranslator-vX.X.zip` file.
-2.  **Extract**: Extract the `publish` folder from the `.zip` file to a permanent location on your computer (e.g., `C:\Program Files\MiniTranslator`).
-3.  **Run**: Double-click `MiniTranslator.exe` to start the application.
+1.  **Download**: Go to the [Releases](../../releases) page and download the latest `MiniTranslate-vX.X.zip` file.
+2.  **Extract**: Extract the `publish` folder from the `.zip` file to a permanent location on your computer (e.g., `C:\Program Files\MiniTranslate`).
+3.  **Run**: Double-click `MiniTranslate.exe` to start the application.
 4.  **Tray Icon**: A blue "T" icon will appear in your system tray (bottom-right corner of your screen).
 
 ## How to Use
@@ -34,7 +34,7 @@ Your selection is saved instantly.
 For more options, right-click the tray icon and select **"Settings"**:
 - **Global Hotkey**: Configure the keyboard shortcut that triggers the translation.
 - **Browser Window Size**: Set the default width and height of the translation window.
-- **Run at Windows startup**: Check this box to have MiniTranslator start automatically when you log in to Windows.
+- **Run at Windows startup**: Check this box to have MiniTranslate start automatically when you log in to Windows.
 - **Test Button**: A "Test Translation" button is available to verify your settings with text from your clipboard.
 
 ## Troubleshooting
@@ -58,7 +58,7 @@ For more options, right-click the tray icon and select **"Settings"**:
 
 1.  If the application is running, right-click the tray icon and select "Exit".
 2.  Delete the folder where you extracted the application files.
-3.  To remove saved settings, delete the folder at `%APPDATA%\MiniTranslator`.
+3.  To remove saved settings, delete the folder at `%APPDATA%\MiniTranslate`.
 4.  If you enabled "Run at Windows startup," open the Settings window and uncheck the box before exiting the application to remove the registry key.
 
 ## Features
@@ -77,7 +77,7 @@ For more options, right-click the tray icon and select **"Settings"**:
 
 ## Configuration File
 
-Settings are stored in: `%APPDATA%\MiniTranslator\settings.json`
+Settings are stored in: `%APPDATA%\MiniTranslate\settings.json`
 
 Example configurations:
 

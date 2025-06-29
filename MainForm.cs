@@ -3,11 +3,139 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
-namespace MiniTranslator
+namespace MiniTranslate
 {
+    public static class LanguageDetector
+    {
+        // Script detection based on Unicode ranges
+        public static string DetectPrimaryScript(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return "unknown";
+
+            var scriptCounts = new Dictionary<string, int>
+            {
+                {"cyrillic", 0},
+                {"latin", 0},
+                {"arabic", 0},
+                {"chinese", 0},
+                {"japanese", 0},
+                {"korean", 0},
+                {"greek", 0},
+                {"hebrew", 0},
+                {"thai", 0},
+                {"devanagari", 0}
+            };
+
+            foreach (char c in text)
+            {
+                // Skip spaces, punctuation, and numbers
+                if (char.IsWhiteSpace(c) || char.IsPunctuation(c) || char.IsDigit(c) || char.IsSymbol(c))
+                    continue;
+
+                int code = (int)c;
+
+                // Cyrillic (Russian, Ukrainian, Bulgarian, etc.)
+                if ((code >= 0x0400 && code <= 0x04FF) || (code >= 0x0500 && code <= 0x052F))
+                    scriptCounts["cyrillic"]++;
+                // Latin (English, European languages)
+                else if ((code >= 0x0041 && code <= 0x005A) || (code >= 0x0061 && code <= 0x007A) ||
+                         (code >= 0x00C0 && code <= 0x024F))
+                    scriptCounts["latin"]++;
+                // Arabic
+                else if ((code >= 0x0600 && code <= 0x06FF) || (code >= 0x0750 && code <= 0x077F))
+                    scriptCounts["arabic"]++;
+                // Chinese (CJK Unified Ideographs)
+                else if ((code >= 0x4E00 && code <= 0x9FFF) || (code >= 0x3400 && code <= 0x4DBF))
+                    scriptCounts["chinese"]++;
+                // Japanese (Hiragana, Katakana)
+                else if ((code >= 0x3040 && code <= 0x309F) || (code >= 0x30A0 && code <= 0x30FF))
+                    scriptCounts["japanese"]++;
+                // Korean (Hangul)
+                else if ((code >= 0xAC00 && code <= 0xD7AF) || (code >= 0x1100 && code <= 0x11FF))
+                    scriptCounts["korean"]++;
+                // Greek
+                else if ((code >= 0x0370 && code <= 0x03FF) || (code >= 0x1F00 && code <= 0x1FFF))
+                    scriptCounts["greek"]++;
+                // Hebrew
+                else if (code >= 0x0590 && code <= 0x05FF)
+                    scriptCounts["hebrew"]++;
+                // Thai
+                else if (code >= 0x0E00 && code <= 0x0E7F)
+                    scriptCounts["thai"]++;
+                // Devanagari (Hindi)
+                else if (code >= 0x0900 && code <= 0x097F)
+                    scriptCounts["devanagari"]++;
+            }
+
+            // Find the most common script
+            var maxScript = scriptCounts.Aggregate((x, y) => x.Value > y.Value ? x : y);
+            return maxScript.Value > 0 ? maxScript.Key : "latin"; // Default to latin if no script detected
+        }
+
+        public static string GetSuggestedSourceLanguage(string detectedScript, string currentSourceLang, string currentTargetLang)
+        {
+            var scriptToLanguageMap = new Dictionary<string, string[]>
+            {
+                {"cyrillic", new[] {"ru", "uk", "bg", "sr", "mk"}},
+                {"latin", new[] {"en", "es", "fr", "de", "it", "pt", "pl", "nl", "sv", "da", "no", "fi", "cs", "sk", "sl", "et", "lv", "lt", "hu", "ro", "hr"}},
+                {"arabic", new[] {"ar"}},
+                {"chinese", new[] {"zh"}},
+                {"japanese", new[] {"ja"}},
+                {"korean", new[] {"ko"}},
+                {"greek", new[] {"el"}},
+                {"hebrew", new[] {"he"}},
+                {"thai", new[] {"th"}},
+                {"devanagari", new[] {"hi"}}
+            };
+
+            if (!scriptToLanguageMap.ContainsKey(detectedScript))
+                return currentSourceLang;
+
+            var possibleLanguages = scriptToLanguageMap[detectedScript];
+            
+            // If current source language matches the detected script, keep it
+            if (possibleLanguages.Contains(currentSourceLang))
+                return currentSourceLang;
+
+            // Otherwise, return the first (most common) language for this script
+            return possibleLanguages[0];
+        }
+
+        public static (string newSource, string newTarget) GetAutoSwitchedLanguages(string text, string currentSource, string currentTarget)
+        {
+            var detectedScript = DetectPrimaryScript(text);
+            var suggestedSource = GetSuggestedSourceLanguage(detectedScript, currentSource, currentTarget);
+
+            // If the suggested source is different from current source, switch
+            if (suggestedSource != currentSource)
+            {
+                // If the suggested source matches current target, swap them
+                if (suggestedSource == currentTarget)
+                {
+                    return (currentTarget, currentSource);
+                }
+                // Otherwise, use suggested source and keep current target
+                else
+                {
+                    return (suggestedSource, currentTarget);
+                }
+            }
+
+            // No change needed
+            return (currentSource, currentTarget);
+        }
+    }
+
     public static class LanguageProvider
     {
         public static Dictionary<string, string> GetLanguages()
@@ -33,6 +161,8 @@ namespace MiniTranslator
         private ContextMenuStrip trayMenu;
         private AppSettings settings;
         private int hotKeyId = 1;
+        private static readonly HttpClient httpClient = new HttpClient();
+        private Process nodeServerProcess;
 
         // Windows API for global hotkeys
         [DllImport("user32.dll")]
@@ -57,6 +187,7 @@ namespace MiniTranslator
             InitializeTrayIcon();
             RegisterGlobalHotKey();
             UpdateTrayIconText();
+            StartNodeServer();
             
             // Hide the form initially
             WindowState = FormWindowState.Minimized;
@@ -66,7 +197,7 @@ namespace MiniTranslator
 
         private void InitializeComponent()
         {
-            this.Text = "MiniTranslator";
+            this.Text = "MiniTranslate";
             this.Size = new Size(1, 1);
             this.FormBorderStyle = FormBorderStyle.None;
             this.ShowInTaskbar = false;
@@ -77,7 +208,7 @@ namespace MiniTranslator
             trayMenu = new ContextMenuStrip();
             trayIcon = new NotifyIcon()
             {
-                Text = "MiniTranslator", // Set initial placeholder text
+                Text = "MiniTranslate", // Set initial placeholder text
                 Icon = LoadCustomIcon(),
                 ContextMenuStrip = trayMenu,
                 Visible = true
@@ -94,14 +225,24 @@ namespace MiniTranslator
             trayMenu.Items.Add("Open/Translate", null, OnOpenWebsite);
             trayMenu.Items.Add("-");
 
+            // Switch Languages
+            trayMenu.Items.Add("Switch Languages", null, OnSwitchLanguages);
+            trayMenu.Items.Add("-");
+
             // Translator Service Menu
             var translatorMenu = new ToolStripMenuItem("Translator");
             var yandexItem = new ToolStripMenuItem("Yandex Translate", null, OnTranslatorChanged) { Tag = TranslatorType.Yandex };
             var googleItem = new ToolStripMenuItem("Google Translate", null, OnTranslatorChanged) { Tag = TranslatorType.Google };
+            var chatgptItem = new ToolStripMenuItem("ChatGPT Translator", null, OnTranslatorChanged) { Tag = TranslatorType.ChatGPT };
+            var translationServerItem = new ToolStripMenuItem("Translation Server", null, OnTranslatorChanged) { Tag = TranslatorType.TranslationServer };
             yandexItem.Checked = settings.PreferredTranslator == TranslatorType.Yandex;
             googleItem.Checked = settings.PreferredTranslator == TranslatorType.Google;
+            chatgptItem.Checked = settings.PreferredTranslator == TranslatorType.ChatGPT;
+            translationServerItem.Checked = settings.PreferredTranslator == TranslatorType.TranslationServer;
             translatorMenu.DropDownItems.Add(yandexItem);
             translatorMenu.DropDownItems.Add(googleItem);
+            translatorMenu.DropDownItems.Add(chatgptItem);
+            translatorMenu.DropDownItems.Add(translationServerItem);
             trayMenu.Items.Add(translatorMenu);
 
             // Browser Menu
@@ -197,8 +338,23 @@ namespace MiniTranslator
             if (trayIcon == null) return; // Add a safeguard
 
             var hotkeyText = GetHotkeyDisplayString();
-            var translatorName = settings.PreferredTranslator == TranslatorType.Google ? "Google" : "Yandex";
-            trayIcon.Text = $"MiniTranslator - {hotkeyText} to translate clipboard ({settings.SourceLanguage}→{settings.TargetLanguage}) via {translatorName}";
+            string translatorName;
+            switch (settings.PreferredTranslator)
+            {
+                case TranslatorType.Google:
+                    translatorName = "Google";
+                    break;
+                case TranslatorType.ChatGPT:
+                    translatorName = "ChatGPT";
+                    break;
+                case TranslatorType.TranslationServer:
+                    translatorName = "Translation Server";
+                    break;
+                default:
+                    translatorName = "Yandex";
+                    break;
+            }
+            trayIcon.Text = $"MiniTranslate - {hotkeyText} to translate clipboard ({settings.SourceLanguage}→{settings.TargetLanguage}) via {translatorName}";
         }
 
         private string GetHotkeyDisplayString()
@@ -222,7 +378,7 @@ namespace MiniTranslator
             if (!RegisterHotKey(this.Handle, hotKeyId, settings.HotkeyModifiers, settings.HotkeyKey))
             {
                 MessageBox.Show($"Failed to register hotkey {GetHotkeyDisplayString()}. It might be already in use.",
-                    "MiniTranslator", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    "MiniTranslate", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             
             // Update tray icon if settings changed
@@ -252,19 +408,82 @@ namespace MiniTranslator
                 if (string.IsNullOrEmpty(clipboardText))
                 {
                     MessageBox.Show("No text found in clipboard to translate.", 
-                        "MiniTranslator", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        "MiniTranslate", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
-                string url;
-                if (settings.PreferredTranslator == TranslatorType.Google)
+                // Auto-switch languages if enabled
+                if (settings.AutoSwitchLanguages)
                 {
-                    // Google Translate URL format
+                    var (newSource, newTarget) = LanguageDetector.GetAutoSwitchedLanguages(
+                        clipboardText, settings.SourceLanguage, settings.TargetLanguage);
+                    
+                    if (newSource != settings.SourceLanguage || newTarget != settings.TargetLanguage)
+                    {
+                        settings.SourceLanguage = newSource;
+                        settings.TargetLanguage = newTarget;
+                        settings.Save();
+                        BuildTrayMenu(); // Update menu to reflect language changes
+                        UpdateTrayIconText();
+                    }
+                }
+
+                string url;
+                // Always use the embedded HTTP server for local HTML
+                int serverPort = 12345;
+                string nodeExe = "node"; // Assumes node is in PATH or bundled in app dir
+                string miniwebPath = Path.Combine(Application.StartupPath, "miniweb.js");
+
+                // Check if the server is running (try to connect)
+                bool serverRunning = false;
+                try
+                {
+                    using (var client = new System.Net.Sockets.TcpClient())
+                    {
+                        client.Connect("127.0.0.1", serverPort);
+                        serverRunning = true;
+                    }
+                }
+                catch { }
+
+                // If not running, launch it
+                if (!serverRunning && File.Exists(miniwebPath))
+                {
+                    try
+                    {
+                        var psi = new ProcessStartInfo
+                        {
+                            FileName = nodeExe,
+                            Arguments = $"\"{miniwebPath}\"",
+                            WorkingDirectory = Application.StartupPath,
+                            UseShellExecute = false,
+                            CreateNoWindow = true
+                        };
+                        Process.Start(psi);
+                        // Wait a moment for the server to start
+                        System.Threading.Thread.Sleep(500);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed to start embedded server: {ex.Message}", "MiniTranslate", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+
+                if (settings.PreferredTranslator == TranslatorType.TranslationServer)
+                {
+                    url = $"http://localhost:{serverPort}/translation-server.html?sl={settings.SourceLanguage}&tl={settings.TargetLanguage}&text={Uri.EscapeDataString(clipboardText)}&server={Uri.EscapeDataString(settings.TranslationServerUrl)}&token={Uri.EscapeDataString(settings.TranslationServerToken)}";
+                }
+                else if (settings.PreferredTranslator == TranslatorType.Google)
+                {
                     url = $"https://translate.google.com/?sl={settings.SourceLanguage}&tl={settings.TargetLanguage}&text={Uri.EscapeDataString(clipboardText)}&op=translate";
+                }
+                else if (settings.PreferredTranslator == TranslatorType.ChatGPT)
+                {
+                    url = $"http://localhost:{serverPort}/translator.html?sl={settings.SourceLanguage}&tl={settings.TargetLanguage}&text={Uri.EscapeDataString(clipboardText)}&apikey={Uri.EscapeDataString(settings.ChatGptApiKey)}";
                 }
                 else
                 {
-                    // Yandex Translate URL format
                     url = $"https://translate.yandex.com/?source_lang={settings.SourceLanguage}&target_lang={settings.TargetLanguage}&text={Uri.EscapeDataString(clipboardText)}";
                 }
 
@@ -278,7 +497,7 @@ namespace MiniTranslator
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to open: {ex.Message}",
-                    "MiniTranslator", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    "MiniTranslate", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -301,7 +520,7 @@ namespace MiniTranslator
         private bool TryOpenInAppMode(string url)
         {
             // Generate a temporary user data directory for a clean session
-            string tempUserDataDir = Path.Combine(Path.GetTempPath(), "MiniTranslator_" + Guid.NewGuid().ToString("N"));
+            string tempUserDataDir = Path.Combine(Path.GetTempPath(), "MiniTranslate_" + Guid.NewGuid().ToString("N"));
 
             switch (settings.PreferredBrowser)
             {
@@ -475,6 +694,7 @@ namespace MiniTranslator
 
         private void OnExit(object sender, EventArgs e)
         {
+            KillNodeServer();
             UnregisterHotKey(this.Handle, hotKeyId);
             trayIcon.Visible = false;
             Application.Exit();
@@ -484,6 +704,7 @@ namespace MiniTranslator
         {
             if (disposing)
             {
+                KillNodeServer();
                 UnregisterHotKey(this.Handle, hotKeyId);
                 trayIcon?.Dispose();
                 trayMenu?.Dispose();
@@ -494,6 +715,161 @@ namespace MiniTranslator
         protected override void SetVisibleCore(bool value)
         {
             base.SetVisibleCore(false);
+        }
+
+        private void LogToFile(string message)
+        {
+            try
+            {
+                var logPath = Path.Combine(Application.StartupPath, "minitranslate.log");
+                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                var logMessage = $"[{timestamp}] {message}";
+                
+                File.AppendAllText(logPath, logMessage + Environment.NewLine);
+                Console.WriteLine(logMessage);
+            }
+            catch
+            {
+                // Ignore logging errors
+            }
+        }
+
+        private void OnSwitchLanguages(object sender, EventArgs e)
+        {
+            // Swap source and target languages
+            var temp = settings.SourceLanguage;
+            settings.SourceLanguage = settings.TargetLanguage;
+            settings.TargetLanguage = temp;
+            settings.Save();
+            BuildTrayMenu();
+        }
+
+        private void StartNodeServer()
+        {
+            try
+            {
+                // Kill any existing node processes on port 12345
+                KillExistingNodeProcesses();
+                
+                // Start the miniweb.js server
+                var processStartInfo = new ProcessStartInfo
+                {
+                    FileName = "node",
+                    Arguments = "miniweb.js",
+                    WorkingDirectory = Application.StartupPath,
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+
+                nodeServerProcess = new Process
+                {
+                    StartInfo = processStartInfo,
+                    EnableRaisingEvents = true
+                };
+
+                // Add event handlers for output
+                nodeServerProcess.OutputDataReceived += (sender, e) => {
+                    if (!string.IsNullOrEmpty(e.Data))
+                        LogToFile($"Node.js output: {e.Data}");
+                };
+                
+                nodeServerProcess.ErrorDataReceived += (sender, e) => {
+                    if (!string.IsNullOrEmpty(e.Data))
+                        LogToFile($"Node.js error: {e.Data}");
+                };
+
+                bool started = nodeServerProcess.Start();
+                if (started)
+                {
+                    nodeServerProcess.BeginOutputReadLine();
+                    nodeServerProcess.BeginErrorReadLine();
+                    LogToFile($"Node.js server started with PID: {nodeServerProcess.Id}");
+                    
+                    // Wait a moment and check if server is actually running
+                    System.Threading.Thread.Sleep(1000);
+                    if (IsServerRunning())
+                    {
+                        LogToFile("Node.js server is running and responding on port 12345");
+                    }
+                    else
+                    {
+                        LogToFile("Warning: Node.js process started but server is not responding on port 12345");
+                    }
+                }
+                else
+                {
+                    LogToFile("Failed to start Node.js server - process.Start() returned false");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogToFile($"Failed to start Node.js server: {ex.Message}");
+                LogToFile($"Exception details: {ex}");
+            }
+        }
+
+        private void KillExistingNodeProcesses()
+        {
+            try
+            {
+                // Kill any node processes that might be using port 12345
+                var processes = Process.GetProcessesByName("node");
+                foreach (var process in processes)
+                {
+                    try
+                    {
+                        process.Kill();
+                        process.WaitForExit(3000); // Wait up to 3 seconds
+                        LogToFile($"Killed existing node process with PID: {process.Id}");
+                    }
+                    catch (Exception ex)
+                    {
+                        LogToFile($"Failed to kill node process {process.Id}: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogToFile($"Error killing existing node processes: {ex.Message}");
+            }
+        }
+
+        private void KillNodeServer()
+        {
+            try
+            {
+                if (nodeServerProcess != null && !nodeServerProcess.HasExited)
+                {
+                    nodeServerProcess.Kill();
+                    nodeServerProcess.WaitForExit(3000); // Wait up to 3 seconds
+                    LogToFile("Node.js server killed");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogToFile($"Failed to kill Node.js server: {ex.Message}");
+            }
+        }
+
+        private bool IsServerRunning()
+        {
+            try
+            {
+                using (var client = new System.Net.Sockets.TcpClient())
+                {
+                    var result = client.BeginConnect("127.0.0.1", 12345, null, null);
+                    var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(2));
+                    client.EndConnect(result);
+                    return success;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 } 
