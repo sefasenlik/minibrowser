@@ -23,8 +23,8 @@ services:
       # Persist users.json file
       - ./data/users.json:/app/users.json
     networks:
-      - translation-network
+      - shared-network
 
 networks:
-  translation-network:
-    driver: bridge 
+  shared-network:
+    external: true 
