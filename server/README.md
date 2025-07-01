@@ -2,8 +2,11 @@
 
 A Node.js/Express server that provides ChatGPT translation services via REST API. This server can be deployed to bypass regional restrictions and provide translation services to your MiniTranslate application.
 
+**🔒 Privacy First: This server does NOT log or store any translation text. All translations are processed in memory and never written to disk or logs.**
+
 ## Features
 
+- **No logging of translations** – translation text is never stored or logged
 - **RESTful API** for ChatGPT translations
 - **CORS enabled** for cross-origin requests
 - **Input validation** and error handling
@@ -163,7 +166,7 @@ docker run -p 3000:3000 translation-api
 2. **Set up rate limiting** for public APIs
 3. **Validate API keys** on your server
 4. **Monitor usage** and costs
-5. **Set up logging** for debugging
+5. **Set up logging** for debugging (never logs translation text)
 
 ## Integration with MiniTranslate
 
