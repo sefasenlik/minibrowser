@@ -31,7 +31,7 @@
     <Content Include="miniweb.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="CHATGPT_SETUP.md">
+    <Content Include="docs\CHATGPT_SETUP.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

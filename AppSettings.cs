@@ -26,13 +26,13 @@ namespace MiniTranslate
         public int HotkeyKey { get; set; } = (int)Keys.Q;
         public string SourceLanguage { get; set; } = "en";
         public string TargetLanguage { get; set; } = "ru";
-        public TranslatorType PreferredTranslator { get; set; } = TranslatorType.Yandex;
-        public int WindowWidth { get; set; } = 1200;
-        public int WindowHeight { get; set; } = 800;
+        public TranslatorType PreferredTranslator { get; set; } = TranslatorType.TranslationServer;
+        public int WindowWidth { get; set; } = 850;
+        public int WindowHeight { get; set; } = 600;
         public BrowserType PreferredBrowser { get; set; } = BrowserType.Chrome;
         public string ChatGptApiKey { get; set; } = string.Empty;
         public string ChatGptApiServerUrl { get; set; } = "http://localhost:3000";
-        public string TranslationServerUrl { get; set; } = "http://localhost:3333";
+        public string TranslationServerUrl { get; set; } = "https://api.sefa.name.tr";
         public bool AutoSwitchLanguages { get; set; } = true;
         public string TranslationServerToken { get; set; } = string.Empty;
 
