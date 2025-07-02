@@ -224,6 +224,12 @@ For support, please:
 3. Open an issue on GitHub with detailed error information
 4. Contact senliksefa@gmail.com
 
+## 🎉 **Special Thanks**
+
+Nina Sitkina *(QA Tester)*
+
+Thank you to all users who provided feedback and suggestions that led to this context-aware translation feature. Your input helps make MiniTranslate better with every release!
+
 ---
 
 **MiniTranslate** - Making translation effortless, one hotkey at a time! 🚀
