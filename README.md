@@ -18,6 +18,7 @@ A powerful Windows utility that provides instant, high-quality translations usin
 - **Yandex Translate**: High-quality translations with excellent Russian language support (90+ languages)
 - **ChatGPT Translator**: AI-powered translations with superior quality and context understanding (35+ languages)
 - **Translation Server**: Confidential server-side processing with token-based authentication, rivals DeepL quality
+- **Context Support**: Provide translation context and requirements (e.g., male/female speaker, preferred terms) for more accurate translations
 
 ### 🌐 Browser Integration
 - **Multiple Browser Support**: Chrome, Edge, or default browser
@@ -82,6 +83,7 @@ Access full configuration via **Settings** in the tray menu:
 
 ### ChatGPT Translator
 - **High-Quality Translations**: Context-aware AI translations
+- **Context Support**: Provide translation context and requirements for more accurate translations
 - **Direct API Integration**: Native Windows dialog interface
 - **Secure API**: Direct integration with OpenAI's API
 - **Language Support**: 35+ major languages
@@ -90,6 +92,7 @@ For setup instructions, see [docs/CHATGPT_SETUP.md](docs/CHATGPT_SETUP.md).
 
 ### Translation Server (DeepL Alternative)
 - **Confidential Processing**: Server-side processing with no data retention
+- **Context Support**: Provide translation context and requirements for more accurate translations
 - **Regional Accessibility**: Works in all regions including Russia
 - **Token Authentication**: Secure access with user tokens
 - **DeepL Quality**: Comparable translation quality to DeepL

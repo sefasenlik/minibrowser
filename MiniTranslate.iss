@@ -1,6 +1,10 @@
 [Setup]
 AppName=MiniTranslate
-AppVersion=1.1
+AppVersion=1.2
+AppPublisher=Sefa Şenlik
+AppPublisherURL=https://github.com/senliksefa/minitranslate
+AppSupportURL=https://github.com/senliksefa/minitranslate/issues
+AppUpdatesURL=https://github.com/senliksefa/minitranslate/releases
 DefaultDirName={pf}\MiniTranslate
 DefaultGroupName=MiniTranslate
 UninstallDisplayIcon={app}\icon.ico

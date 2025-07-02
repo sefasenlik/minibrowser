@@ -108,7 +108,7 @@ app.post('/admin/adduser', requireAdminAuth, (req, res) => {
 // Translation endpoint
 app.post('/translate', async (req, res) => {
     try {
-        const { text, sourceLang, targetLang, apiKey, token } = req.body;
+        const { text, sourceLang, targetLang, context, apiKey, token } = req.body;
         if (!token || !findUserByToken(token)) {
             return res.status(401).json({ error: 'Invalid or missing user token' });
         }
@@ -138,11 +138,15 @@ app.post('/translate', async (req, res) => {
         const sourceLanguageName = languages[sourceLang] || sourceLang;
         const targetLanguageName = languages[targetLang] || targetLang;
 
-        // Create prompt
-        const prompt = `Translate the following text from ${sourceLanguageName} to ${targetLanguageName}. 
-Provide only the translation without any additional explanations, formatting, or quotation marks:
-
-${text}`;
+        // Create prompt with context if provided
+        let prompt = `Translate the following text from ${sourceLanguageName} to ${targetLanguageName}. 
+Provide only the translation without any additional explanations, formatting, or quotation marks.`;
+        
+        if (context && context.trim()) {
+            prompt += `\n\nNote: ${context.trim()}`;
+        }
+        
+        prompt += `\n\nText to translate:\n${text}`;
 
         // Call ChatGPT API
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -152,7 +156,7 @@ ${text}`;
                 'Authorization': `Bearer ${finalApiKey}`
             },
             body: JSON.stringify({
-                model: 'gpt-4.1-nano',
+                model: 'gpt-4o-mini',
                 messages: [
                     {
                         role: 'user',
@@ -185,7 +189,8 @@ ${text}`;
             translation: translation,
             sourceLang: sourceLang,
             targetLang: targetLang,
-            originalText: text
+            originalText: text,
+            context: context || null
         });
 
     } catch (error) {

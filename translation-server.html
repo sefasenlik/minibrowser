@@ -127,6 +127,26 @@
             flex-shrink: 0;
         }
 
+        .context-field {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .context-field:focus {
+            border-color: #00ff88;
+        }
+
+        .context-field::placeholder {
+            color: #666;
+        }
+
         .language-select {
             background: #2a2a2a;
             border: 1px solid #444;
@@ -372,6 +392,8 @@
                 <option value="ms">Melayu</option>
             </select>
             
+            <input type="text" id="contextField" class="context-field" placeholder="Context/requirements (e.g., male speaker, preferred terms)" maxlength="250">
+            
             <button class="translate-btn" id="translateBtn">
                 <span class="btn-text">Translate</span>
                 <div class="loading" id="loading">
@@ -388,6 +410,7 @@
         const sourceLang = urlParams.get('sl') || 'en';
         const targetLang = urlParams.get('tl') || 'ru';
         const text = urlParams.get('text') || '';
+        const context = urlParams.get('context') || '';
         let serverUrl = urlParams.get('server') || 'http://localhost:3333';
         const token = urlParams.get('token') || '';
 
@@ -398,6 +421,7 @@
             sourceLang,
             targetLang,
             text: text.substring(0, 50) + (text.length > 50 ? '...' : ''),
+            context: context || 'none',
             serverUrl,
             hasToken: !!token,
             tokenLength: token.length,
@@ -414,6 +438,7 @@
         document.getElementById('sourceLang').value = sourceLang;
         document.getElementById('targetLang').value = targetLang;
         document.getElementById('sourceText').value = text;
+        document.getElementById('contextField').value = context;
 
         // Update status to show server URL
         document.querySelector('.status').textContent = `Connected to ${serverUrl}`;
@@ -484,6 +509,7 @@
             const sourceText = document.getElementById('sourceText').value.trim();
             const sourceLang = document.getElementById('sourceLang').value;
             const targetLang = document.getElementById('targetLang').value;
+            const context = document.getElementById('contextField').value.trim();
 
             if (!sourceText) {
                 showError('Please enter text to translate.');
@@ -516,6 +542,7 @@
                     text: sourceText,
                     sourceLang: sourceLang,
                     targetLang: targetLang,
+                    context: context,
                     token: token
                 };
                 
@@ -524,6 +551,7 @@
                     text: sourceText,
                     sourceLang: sourceLang,
                     targetLang: targetLang,
+                    context: context || 'none',
                     token: token ? '***' : 'missing'
                 });
                 console.log('🔑 Token length:', token.length);
