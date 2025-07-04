@@ -180,6 +180,15 @@ namespace MiniTranslate
         // Windows message for hotkey
         private const int WM_HOTKEY = 0x0312;
 
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        private const int SW_RESTORE = 9;
+
+        private Process chatGptWindowProcess = null;
+        private Process translationServerWindowProcess = null;
+
         public MainForm()
         {
             InitializeComponent();
@@ -270,10 +279,13 @@ namespace MiniTranslate
                 sourceItem.Checked = settings.SourceLanguage == lang.Key;
                 sourceLangMenu.DropDownItems.Add(sourceItem);
 
-                // Add to Target Language Menu
-                var targetItem = new ToolStripMenuItem(lang.Value, null, OnTargetLanguageChanged) { Tag = lang.Key };
-                targetItem.Checked = settings.TargetLanguage == lang.Key;
-                targetLangMenu.DropDownItems.Add(targetItem);
+                // Add to Target Language Menu (excluding "auto" - Detect language)
+                if (lang.Key != "auto")
+                {
+                    var targetItem = new ToolStripMenuItem(lang.Value, null, OnTargetLanguageChanged) { Tag = lang.Key };
+                    targetItem.Checked = settings.TargetLanguage == lang.Key;
+                    targetLangMenu.DropDownItems.Add(targetItem);
+                }
             }
 
             trayMenu.Items.Add(sourceLangMenu);
@@ -473,6 +485,12 @@ namespace MiniTranslate
                 if (settings.PreferredTranslator == TranslatorType.TranslationServer)
                 {
                     url = $"http://localhost:{serverPort}/translation-server.html?sl={settings.SourceLanguage}&tl={settings.TargetLanguage}&text={Uri.EscapeDataString(clipboardText)}&server={Uri.EscapeDataString(settings.TranslationServerUrl)}&token={Uri.EscapeDataString(settings.TranslationServerToken)}";
+                    // If window is open, close it before opening a new one
+                    if (translationServerWindowProcess != null && !translationServerWindowProcess.HasExited)
+                    {
+                        try { translationServerWindowProcess.Kill(); translationServerWindowProcess.WaitForExit(2000); } catch { }
+                        translationServerWindowProcess = null;
+                    }
                 }
                 else if (settings.PreferredTranslator == TranslatorType.Google)
                 {
@@ -481,6 +499,12 @@ namespace MiniTranslate
                 else if (settings.PreferredTranslator == TranslatorType.ChatGPT)
                 {
                     url = $"http://localhost:{serverPort}/translator.html?sl={settings.SourceLanguage}&tl={settings.TargetLanguage}&text={Uri.EscapeDataString(clipboardText)}&apikey={Uri.EscapeDataString(settings.ChatGptApiKey)}";
+                    // If window is open, close it before opening a new one
+                    if (chatGptWindowProcess != null && !chatGptWindowProcess.HasExited)
+                    {
+                        try { chatGptWindowProcess.Kill(); chatGptWindowProcess.WaitForExit(2000); } catch { }
+                        chatGptWindowProcess = null;
+                    }
                 }
                 else
                 {
@@ -488,10 +512,19 @@ namespace MiniTranslate
                 }
 
                 // Try to open in app mode (minimal UI) with Chrome or Edge
-                if (!TryOpenInAppMode(url))
+                Process launchedProcess = null;
+                if (!TryOpenInAppModeWithProcess(url, out launchedProcess))
                 {
                     // Fallback to default browser if app mode fails
                     Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+                }
+                else
+                {
+                    // Track the process for ChatGPT and Translation Server
+                    if (settings.PreferredTranslator == TranslatorType.ChatGPT)
+                        chatGptWindowProcess = launchedProcess;
+                    else if (settings.PreferredTranslator == TranslatorType.TranslationServer)
+                        translationServerWindowProcess = launchedProcess;
                 }
             }
             catch (Exception ex)
@@ -517,85 +550,69 @@ namespace MiniTranslate
             }
         }
 
-        private bool TryOpenInAppMode(string url)
+        private bool TryOpenInAppModeWithProcess(string url, out Process launchedProcess)
         {
-            // Generate a temporary user data directory for a clean session
             string tempUserDataDir = Path.Combine(Path.GetTempPath(), "MiniTranslate_" + Guid.NewGuid().ToString("N"));
-
+            launchedProcess = null;
             switch (settings.PreferredBrowser)
             {
                 case BrowserType.Chrome:
-                    return TryOpenWithChrome(url, tempUserDataDir);
-                    
+                    return TryOpenWithChrome(url, tempUserDataDir, out launchedProcess);
                 case BrowserType.Edge:
-                    return TryOpenWithEdge(url, tempUserDataDir);
-                    
+                    return TryOpenWithEdge(url, tempUserDataDir, out launchedProcess);
                 case BrowserType.Default:
-                    // Default browser doesn't support app mode or custom user directories
-                    return false; 
-                    
+                    return false;
                 default:
-                    // Fallback to old behavior (try Chrome first, then Edge)
-                    return TryOpenWithChrome(url, tempUserDataDir) || TryOpenWithEdge(url, tempUserDataDir);
+                    return TryOpenWithChrome(url, tempUserDataDir, out launchedProcess) || TryOpenWithEdge(url, tempUserDataDir, out launchedProcess);
             }
         }
 
-        private bool TryOpenWithChrome(string url, string userDataDir)
+        private bool TryOpenWithChrome(string url, string userDataDir, out Process launchedProcess)
         {
             var sizeArgs = $"--window-size={settings.WindowWidth},{settings.WindowHeight}";
             var userDataArgs = $"--user-data-dir=\"{userDataDir}\"";
             var arguments = $"--app={url} {sizeArgs} {userDataArgs} --disable-extensions";
-
-            // Try Chrome with generic name first
-            if (TryStartProcess("chrome.exe", arguments))
+            launchedProcess = null;
+            if (TryStartProcess("chrome.exe", arguments, out launchedProcess))
                 return true;
-
-            // Try Chrome in common installation paths
             string[] chromePaths = {
                 @"C:\Program Files\Google\Chrome\Application\chrome.exe",
                 @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
                 Environment.ExpandEnvironmentVariables(@"%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe")
             };
-
             foreach (var chromePath in chromePaths)
             {
-                if (File.Exists(chromePath) && TryStartProcess(chromePath, arguments))
+                if (File.Exists(chromePath) && TryStartProcess(chromePath, arguments, out launchedProcess))
                 {
                     return true;
                 }
             }
-
             return false;
         }
 
-        private bool TryOpenWithEdge(string url, string userDataDir)
+        private bool TryOpenWithEdge(string url, string userDataDir, out Process launchedProcess)
         {
             var sizeArgs = $"--window-size={settings.WindowWidth},{settings.WindowHeight}";
             var userDataArgs = $"--user-data-dir=\"{userDataDir}\"";
             var arguments = $"--app={url} {sizeArgs} {userDataArgs} --disable-extensions";
-            
-            // Try Edge with generic name first
-            if (TryStartProcess("msedge.exe", arguments))
+            launchedProcess = null;
+            if (TryStartProcess("msedge.exe", arguments, out launchedProcess))
                 return true;
-
-            // Try Edge in common installation paths
             string[] edgePaths = {
                 @"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
                 @"C:\Program Files\Microsoft\Edge\Application\msedge.exe"
             };
-
             foreach (var edgePath in edgePaths)
             {
-                if (File.Exists(edgePath) && TryStartProcess(edgePath, arguments))
+                if (File.Exists(edgePath) && TryStartProcess(edgePath, arguments, out launchedProcess))
                 {
                     return true;
                 }
             }
-
             return false;
         }
 
-        private bool TryStartProcess(string fileName, string arguments)
+        private bool TryStartProcess(string fileName, string arguments, out Process launchedProcess)
         {
             try
             {
@@ -606,12 +623,12 @@ namespace MiniTranslate
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
-
-                Process.Start(processStartInfo);
-                return true;
+                launchedProcess = Process.Start(processStartInfo);
+                return launchedProcess != null;
             }
             catch
             {
+                launchedProcess = null;
                 return false;
             }
         }
