@@ -142,7 +142,7 @@ namespace MiniTranslate
         {
             return new Dictionary<string, string>
             {
-                {"en", "English"}, {"ru", "Русский"}, {"es", "Español"}, {"fr", "Français"},
+                {"auto", "Detect language"}, {"en", "English"}, {"ru", "Русский"}, {"es", "Español"}, {"fr", "Français"},
                 {"de", "Deutsch"}, {"it", "Italiano"}, {"pt", "Português"}, {"zh", "中文"},
                 {"ja", "日本語"}, {"ko", "한국어"}, {"ar", "العربية"}, {"hi", "हिन्दी"},
                 {"tr", "Türkçe"}, {"pl", "Polski"}, {"nl", "Nederlands"}, {"sv", "Svenska"},

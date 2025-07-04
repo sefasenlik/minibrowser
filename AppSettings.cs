@@ -24,7 +24,7 @@ namespace MiniTranslate
     {
         public int HotkeyModifiers { get; set; } = 0x0002; // MOD_CONTROL
         public int HotkeyKey { get; set; } = (int)Keys.Q;
-        public string SourceLanguage { get; set; } = "en";
+        public string SourceLanguage { get; set; } = "auto";
         public string TargetLanguage { get; set; } = "ru";
         public TranslatorType PreferredTranslator { get; set; } = TranslatorType.TranslationServer;
         public int WindowWidth { get; set; } = 850;

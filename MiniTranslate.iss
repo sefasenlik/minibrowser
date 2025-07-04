@@ -1,6 +1,6 @@
 [Setup]
 AppName=MiniTranslate
-AppVersion=1.2
+AppVersion=1.2.2
 AppPublisher=Sefa Şenlik
 AppPublisherURL=https://github.com/senliksefa/minitranslate
 AppSupportURL=https://github.com/senliksefa/minitranslate/issues

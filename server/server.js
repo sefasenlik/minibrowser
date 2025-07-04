@@ -29,7 +29,7 @@ app.get('/health', (req, res) => {
 
 // Language mapping (same as in the HTML)
 const languages = {
-    'en': 'English', 'ru': 'Русский', 'es': 'Español', 'fr': 'Français', 'de': 'Deutsch', 
+    'auto': 'Detect language', 'en': 'English', 'ru': 'Русский', 'es': 'Español', 'fr': 'Français', 'de': 'Deutsch', 
     'it': 'Italiano', 'pt': 'Português', 'zh': '中文', 'ja': '日本語', 'ko': '한국어', 
     'ar': 'العربية', 'hi': 'हिन्दी', 'tr': 'Türkçe', 'pl': 'Polski', 'nl': 'Nederlands', 
     'sv': 'Svenska', 'da': 'Dansk', 'no': 'Norsk', 'fi': 'Suomi', 'cs': 'Čeština', 
@@ -119,6 +119,13 @@ app.post('/translate', async (req, res) => {
             });
         }
 
+        // Check text length (2500 character limit)
+        if (text.length > 2500) {
+            return res.status(400).json({
+                error: 'Text is too long. Please limit your input to 2500 characters.'
+            });
+        }
+
         // Use provided API key or server-side default
         const finalApiKey = apiKey || process.env.OPENAI_API_KEY;
         
@@ -135,12 +142,18 @@ app.post('/translate', async (req, res) => {
         }
 
         // Get language names
-        const sourceLanguageName = languages[sourceLang] || sourceLang;
+        const sourceLanguageName = sourceLang === 'auto' ? 'the detected language' : (languages[sourceLang] || sourceLang);
         const targetLanguageName = languages[targetLang] || targetLang;
 
         // Create prompt with context if provided
-        let prompt = `Translate the following text from ${sourceLanguageName} to ${targetLanguageName}. 
+        let prompt;
+        if (sourceLang === 'auto') {
+            prompt = `Detect the language of the following text and translate it to ${targetLanguageName}. 
 Provide only the translation without any additional explanations, formatting, or quotation marks.`;
+        } else {
+            prompt = `Translate the following text from ${sourceLanguageName} to ${targetLanguageName}. 
+Provide only the translation without any additional explanations, formatting, or quotation marks.`;
+        }
         
         if (context && context.trim()) {
             prompt += `\n\nNote: ${context.trim()}`;
@@ -163,7 +176,7 @@ Provide only the translation without any additional explanations, formatting, or
                         content: prompt
                     }
                 ],
-                max_tokens: 1000,
+                max_tokens: 3000,
                 temperature: 0.3
             })
         });

@@ -19,8 +19,6 @@ namespace MiniTranslate
         private ComboBox sourceLanguageCombo;
         private ComboBox targetLanguageCombo;
         private ComboBox translatorComboBox;
-        private TrackBar widthSlider;
-        private TrackBar heightSlider;
         private Label widthLabel;
         private Label heightLabel;
         private ComboBox browserComboBox;
@@ -39,6 +37,8 @@ namespace MiniTranslate
         private GroupBox hotkeyGroupBox;
         private GroupBox windowSizeGroupBox;
         private CheckBox autoSwitchLanguagesCheckBox;
+        private NumericUpDown widthNumeric;
+        private NumericUpDown heightNumeric;
 
         // Hotkey modifiers
         private const int MOD_CONTROL = 0x0002;
@@ -75,7 +75,7 @@ namespace MiniTranslate
         private void InitializeComponent()
         {
             this.Text = "MiniTranslate Settings";
-            this.Size = new Size(520, 700);
+            this.Size = new Size(520, 640);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -86,15 +86,15 @@ namespace MiniTranslate
             var translatorLabel = new Label
             {
                 Text = "Translation Service:",
-                Location = new Point(20, 15),
-                Size = new Size(140, 23),
+                Location = new Point(20, 17),
+                Size = new Size(130, 23),
                 Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold)
             };
             this.Controls.Add(translatorLabel);
 
             translatorComboBox = new ComboBox
             {
-                Location = new Point(170, 15),
+                Location = new Point(155, 15),
                 Size = new Size(180, 23),
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
@@ -110,14 +110,14 @@ namespace MiniTranslate
             {
                 Text = "API Settings",
                 Location = new Point(10, 50),
-                Size = new Size(490, 135)
+                Size = new Size(480, 135)
             };
             this.Controls.Add(apiGroupBox);
 
             chatGptApiKeyLabel = new Label
             {
                 Text = "ChatGPT API Key:",
-                Location = new Point(15, 25),
+                Location = new Point(15, 27),
                 Size = new Size(120, 23)
             };
             apiGroupBox.Controls.Add(chatGptApiKeyLabel);
@@ -133,7 +133,7 @@ namespace MiniTranslate
             translationServerUrlLabel = new Label
             {
                 Text = "Translation Server:",
-                Location = new Point(15, 70),
+                Location = new Point(15, 72),
                 Size = new Size(120, 23)
             };
             apiGroupBox.Controls.Add(translationServerUrlLabel);
@@ -148,7 +148,7 @@ namespace MiniTranslate
             translationServerTokenLabel = new Label
             {
                 Text = "Server Token:",
-                Location = new Point(15, 95),
+                Location = new Point(15, 97),
                 Size = new Size(120, 23)
             };
             apiGroupBox.Controls.Add(translationServerTokenLabel);
@@ -166,14 +166,14 @@ namespace MiniTranslate
             {
                 Text = "Languages",
                 Location = new Point(10, 195),
-                Size = new Size(480, 110)
+                Size = new Size(480, 100)
             };
             this.Controls.Add(languageGroupBox);
 
             var sourceLabel = new Label
             {
                 Text = "Source Language:",
-                Location = new Point(15, 30),
+                Location = new Point(15, 32),
                 Size = new Size(110, 23)
             };
             languageGroupBox.Controls.Add(sourceLabel);
@@ -189,7 +189,7 @@ namespace MiniTranslate
             var targetLabel = new Label
             {
                 Text = "Target Language:",
-                Location = new Point(250, 30),
+                Location = new Point(250, 32),
                 Size = new Size(110, 23)
             };
             languageGroupBox.Controls.Add(targetLabel);
@@ -219,8 +219,8 @@ namespace MiniTranslate
             hotkeyGroupBox = new GroupBox
             {
                 Text = "Global Hotkey",
-                Location = new Point(10, 315),
-                Size = new Size(480, 100)
+                Location = new Point(10, 305),
+                Size = new Size(480, 70)
             };
             this.Controls.Add(hotkeyGroupBox);
 
@@ -264,15 +264,15 @@ namespace MiniTranslate
             var keyLabel = new Label
             {
                 Text = "Key:",
-                Location = new Point(250, 30),
+                Location = new Point(240, 32),
                 Size = new Size(30, 23)
             };
             hotkeyGroupBox.Controls.Add(keyLabel);
 
             keyComboBox = new ComboBox
             {
-                Location = new Point(285, 30),
-                Size = new Size(60, 23),
+                Location = new Point(275, 30),
+                Size = new Size(40, 23),
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
             keyComboBox.SelectedIndexChanged += UpdateCurrentHotkeyDisplay;
@@ -284,88 +284,90 @@ namespace MiniTranslate
             var currentLabel = new Label
             {
                 Text = "Current: Ctrl+Q",
-                Location = new Point(15, 65),
+                Location = new Point(340, 32),
                 Size = new Size(200, 20),
                 ForeColor = Color.Blue
             };
             currentLabel.Name = "currentLabel";
             hotkeyGroupBox.Controls.Add(currentLabel);
 
-            // Browser selection
+            // Browser Settings Group
+            windowSizeGroupBox = new GroupBox
+            {
+                Text = "Browser Settings",
+                Location = new Point(10, 385),
+                Size = new Size(480, 110)
+            };
+            this.Controls.Add(windowSizeGroupBox);
+
             var browserLabel = new Label
             {
                 Text = "Preferred Browser:",
-                Location = new Point(20, 430),
+                Location = new Point(15, 32),
                 Size = new Size(120, 23),
                 Font = new Font("Microsoft Sans Serif", 8.25F, FontStyle.Bold)
             };
-            this.Controls.Add(browserLabel);
+            windowSizeGroupBox.Controls.Add(browserLabel);
 
             browserComboBox = new ComboBox
             {
-                Location = new Point(145, 430),
+                Location = new Point(135, 30),
                 Size = new Size(120, 23),
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
             browserComboBox.Items.Add("Chrome");
             browserComboBox.Items.Add("Edge");
             browserComboBox.Items.Add("Default Browser");
-            this.Controls.Add(browserComboBox);
-
-            // Window Size Group
-            windowSizeGroupBox = new GroupBox
-            {
-                Text = "Window Size",
-                Location = new Point(10, 465),
-                Size = new Size(480, 80)
-            };
-            this.Controls.Add(windowSizeGroupBox);
+            windowSizeGroupBox.Controls.Add(browserComboBox);
 
             widthLabel = new Label
             {
-                Text = "Width:",
-                Location = new Point(15, 30),
-                Size = new Size(50, 23)
+                Text = "Window Width (px):",
+                Location = new Point(15, 72),
+                Size = new Size(115, 23)
             };
             windowSizeGroupBox.Controls.Add(widthLabel);
 
-            widthSlider = new TrackBar
+            var maxWidth = Screen.PrimaryScreen?.Bounds.Width ?? 1600;
+            var maxHeight = Screen.PrimaryScreen?.Bounds.Height ?? 1060;
+
+            widthNumeric = new NumericUpDown
             {
-                Location = new Point(70, 30),
-                Size = new Size(180, 23),
-                Minimum = 400,
-                Maximum = 1600,
-                TickFrequency = 100,
-                Value = 1200
+                Location = new Point(135, 70),
+                Size = new Size(60, 23),
+                Minimum = 470,
+                Maximum = maxWidth,
+                Value = Math.Max(470, Math.Min(Settings.WindowWidth, maxWidth)),
+                Increment = 10,
+                TextAlign = HorizontalAlignment.Right
             };
-            widthSlider.ValueChanged += WidthSlider_ValueChanged;
-            windowSizeGroupBox.Controls.Add(widthSlider);
+            windowSizeGroupBox.Controls.Add(widthNumeric);
 
             heightLabel = new Label
             {
-                Text = "Height:",
-                Location = new Point(270, 30),
-                Size = new Size(50, 23)
+                Text = "Height (px):",
+                Location = new Point(220, 72),
+                Size = new Size(80, 23)
             };
             windowSizeGroupBox.Controls.Add(heightLabel);
 
-            heightSlider = new TrackBar
+            heightNumeric = new NumericUpDown
             {
-                Location = new Point(325, 30),
-                Size = new Size(120, 23),
-                Minimum = 300,
-                Maximum = 1000,
-                TickFrequency = 100,
-                Value = 800
+                Location = new Point(300, 70),
+                Size = new Size(60, 23),
+                Minimum = 350,
+                Maximum = maxHeight,
+                Value = Math.Max(350, Math.Min(Settings.WindowHeight, maxHeight)),
+                Increment = 10,
+                TextAlign = HorizontalAlignment.Right
             };
-            heightSlider.ValueChanged += HeightSlider_ValueChanged;
-            windowSizeGroupBox.Controls.Add(heightSlider);
+            windowSizeGroupBox.Controls.Add(heightNumeric);
 
             // Startup Checkbox
             startupCheckBox = new CheckBox
             {
                 Text = "Run at Windows startup",
-                Location = new Point(20, 560),
+                Location = new Point(20, 515),
                 Size = new Size(180, 23)
             };
             this.Controls.Add(startupCheckBox);
@@ -374,7 +376,7 @@ namespace MiniTranslate
             testButton = new Button
             {
                 Text = "Test Translation",
-                Location = new Point(20, 595),
+                Location = new Point(20, 550),
                 Size = new Size(120, 30),
                 BackColor = Color.FromArgb(225, 240, 255),
                 FlatStyle = FlatStyle.Flat,
@@ -388,7 +390,7 @@ namespace MiniTranslate
             okButton = new Button
             {
                 Text = "OK",
-                Location = new Point(295, 595),
+                Location = new Point(330, 550),
                 Size = new Size(75, 30)
             };
             okButton.DialogResult = DialogResult.OK;
@@ -398,7 +400,7 @@ namespace MiniTranslate
             cancelButton = new Button
             {
                 Text = "Cancel",
-                Location = new Point(380, 595),
+                Location = new Point(415, 550),
                 Size = new Size(75, 30)
             };
             cancelButton.DialogResult = DialogResult.Cancel;
@@ -457,10 +459,8 @@ namespace MiniTranslate
             translationServerUrlTextBox.Text = Settings.TranslationServerUrl;
             translationServerTokenTextBox.Text = Settings.TranslationServerToken;
             
-            widthSlider.Value = Math.Max(widthSlider.Minimum, Math.Min(widthSlider.Maximum, Settings.WindowWidth));
-            heightSlider.Value = Math.Max(heightSlider.Minimum, Math.Min(heightSlider.Maximum, Settings.WindowHeight));
-            
-            UpdateSliderLabels();
+            widthNumeric.Value = Math.Max(widthNumeric.Minimum, Math.Min(widthNumeric.Maximum, Settings.WindowWidth));
+            heightNumeric.Value = Math.Max(heightNumeric.Minimum, Math.Min(heightNumeric.Maximum, Settings.WindowHeight));
             
             // Load language settings
             foreach (LanguageItem item in sourceLanguageCombo.Items)
@@ -585,22 +585,6 @@ namespace MiniTranslate
             {
                 return string.Empty;
             }
-        }
-
-        private void WidthSlider_ValueChanged(object sender, EventArgs e)
-        {
-            UpdateSliderLabels();
-        }
-
-        private void HeightSlider_ValueChanged(object sender, EventArgs e)
-        {
-            UpdateSliderLabels();
-        }
-
-        private void UpdateSliderLabels()
-        {
-            widthLabel.Text = $"{widthSlider.Value}px";
-            heightLabel.Text = $"{heightSlider.Value}px";
         }
 
         private bool TryOpenInAppMode(string url)
@@ -776,8 +760,8 @@ namespace MiniTranslate
 
             // Save settings
             Settings.PreferredTranslator = (TranslatorType)translatorComboBox.SelectedIndex;
-            Settings.WindowWidth = widthSlider.Value;
-            Settings.WindowHeight = heightSlider.Value;
+            Settings.WindowWidth = (int)widthNumeric.Value;
+            Settings.WindowHeight = (int)heightNumeric.Value;
             
             var sourceItem = sourceLanguageCombo.SelectedItem as LanguageItem;
             var targetItem = targetLanguageCombo.SelectedItem as LanguageItem;

@@ -18,6 +18,8 @@
             color: #ffffff;
             height: 100vh;
             overflow: hidden;
+            min-width: 470px;
+            min-height: 600px;
         }
 
         .container {
@@ -25,6 +27,7 @@
             flex-direction: column;
             height: 100vh;
             max-width: 100vw;
+            min-width: 470px;
         }
 
         .header {
@@ -54,21 +57,25 @@
 
         .main-content {
             display: flex;
+            flex-direction: row;
             flex: 1;
             overflow: hidden;
         }
 
-        .left-panel {
-            flex: 1;
+        .left-panel, .right-panel {
+            flex: 1 1 0;
             display: flex;
             flex-direction: column;
+            min-height: 0;
+        }
+
+        .left-panel {
             border-right: 1px solid #333;
+            border-bottom: none;
         }
 
         .right-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+            border-bottom: none;
         }
 
         .panel-header {
@@ -84,7 +91,7 @@
             min-height: 48px;
         }
 
-        .copy-btn {
+        .copy-btn, .clear-btn {
             background: #2a2a2a;
             border: 1px solid #444;
             color: #ffffff;
@@ -95,7 +102,7 @@
             transition: all 0.2s;
         }
 
-        .copy-btn:hover {
+        .copy-btn:hover, .clear-btn:hover {
             background: #3a3a3a;
             border-color: #555;
         }
@@ -122,13 +129,24 @@
             padding: 15px 20px;
             border-top: 1px solid #333;
             display: flex;
-            gap: 15px;
-            align-items: center;
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
             flex-shrink: 0;
         }
-
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-direction: row;
+        }
+        .controls-row .translate-btn {
+            min-width: 100px;
+            max-width: 150px;
+            flex-shrink: 0;
+        }
         .context-field {
-            background: #2a2a2a;
+            background: #1f2531;
             border: 1px solid #444;
             color: #ffffff;
             padding: 8px 12px;
@@ -136,7 +154,6 @@
             font-size: 14px;
             outline: none;
             flex: 1;
-            max-width: 300px;
         }
 
         .context-field:focus {
@@ -228,23 +245,46 @@
         }
 
         .error {
+            font-size: 12px;
             background: rgba(255, 0, 0, 0.1);
             border: 1px solid rgba(255, 0, 0, 0.3);
             color: #ff6b6b;
             padding: 10px;
             border-radius: 6px;
-            margin: 10px 20px;
             display: none;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%);
+            z-index: 1000;
+            max-width: 90%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
         }
 
         .success {
+            font-size: 12px;
             background: rgba(79, 140, 255, 0.1);
             border: 1px solid rgba(79, 140, 255, 0.3);
             color: #4f8cff;
             padding: 10px;
             border-radius: 6px;
-            margin: 10px 20px;
             display: none;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%);
+            z-index: 1000;
+            max-width: 90%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .error.show, .success.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
         }
 
         .char-count {
@@ -256,18 +296,34 @@
             border-top: 1px solid #333;
         }
 
+        @media (min-width: 769px) {
+            .controls {
+                flex-direction: row;
+                gap: 15px;
+                align-items: center;
+            }
+            .controls-row {
+                display: contents;
+            }
+            .context-field-mobile {
+                display: none;
+            }
+        }
         @media (max-width: 768px) {
             .main-content {
                 flex-direction: column;
             }
-            
-            .left-panel, .right-panel {
-                flex: 0.5;
-            }
-            
             .left-panel {
                 border-right: none;
                 border-bottom: 1px solid #333;
+            }
+            .controls-row .translate-btn {
+                width: 100%;
+                min-width: 0;
+                max-width: none;
+            }
+            .context-field-desktop {
+                display: none;
             }
         }
     </style>
@@ -284,7 +340,10 @@
         
         <div class="main-content">
             <div class="left-panel">
-                <div class="panel-header">Source Text</div>
+                <div class="panel-header">
+                    <span>Source Text</span>
+                    <button class="clear-btn" id="clearBtn">Clear</button>
+                </div>
                 <textarea 
                     id="sourceText" 
                     class="text-area" 
@@ -305,107 +364,108 @@
                     class="text-area" 
                     placeholder="Translation will appear here..."
                     rows="10"
-                    readonly
                 ></textarea>
                 <div class="char-count" id="targetCharCount">0 characters</div>
             </div>
         </div>
         
         <div class="controls">
-            <select id="sourceLang" class="language-select">
-                <option value="en">English</option>
-                <option value="ru">Русский</option>
-                <option value="es">Español</option>
-                <option value="fr">Français</option>
-                <option value="de">Deutsch</option>
-                <option value="it">Italiano</option>
-                <option value="pt">Português</option>
-                <option value="zh">中文</option>
-                <option value="ja">日本語</option>
-                <option value="ko">한국어</option>
-                <option value="ar">العربية</option>
-                <option value="hi">हिन्दी</option>
-                <option value="tr">Türkçe</option>
-                <option value="pl">Polski</option>
-                <option value="nl">Nederlands</option>
-                <option value="sv">Svenska</option>
-                <option value="da">Dansk</option>
-                <option value="no">Norsk</option>
-                <option value="fi">Suomi</option>
-                <option value="cs">Čeština</option>
-                <option value="uk">Українська</option>
-                <option value="bg">Български</option>
-                <option value="hr">Hrvatski</option>
-                <option value="sk">Slovenčina</option>
-                <option value="sl">Slovenščina</option>
-                <option value="et">Eesti</option>
-                <option value="lv">Latviešu</option>
-                <option value="lt">Lietuvių</option>
-                <option value="hu">Magyar</option>
-                <option value="ro">Română</option>
-                <option value="el">Ελληνικά</option>
-                <option value="he">עברית</option>
-                <option value="th">ไทย</option>
-                <option value="vi">Tiếng Việt</option>
-                <option value="id">Indonesia</option>
-                <option value="ms">Melayu</option>
-            </select>
-            <button class="swap-btn" id="swapBtn">⇄</button>
-            <select id="targetLang" class="language-select">
-                <option value="ru">Русский</option>
-                <option value="en">English</option>
-                <option value="es">Español</option>
-                <option value="fr">Français</option>
-                <option value="de">Deutsch</option>
-                <option value="it">Italiano</option>
-                <option value="pt">Português</option>
-                <option value="zh">中文</option>
-                <option value="ja">日本語</option>
-                <option value="ko">한국어</option>
-                <option value="ar">العربية</option>
-                <option value="hi">हिन्दी</option>
-                <option value="tr">Türkçe</option>
-                <option value="pl">Polski</option>
-                <option value="nl">Nederlands</option>
-                <option value="sv">Svenska</option>
-                <option value="da">Dansk</option>
-                <option value="no">Norsk</option>
-                <option value="fi">Suomi</option>
-                <option value="cs">Čeština</option>
-                <option value="uk">Українська</option>
-                <option value="bg">Български</option>
-                <option value="hr">Hrvatski</option>
-                <option value="sk">Slovenčina</option>
-                <option value="sl">Slovenščina</option>
-                <option value="et">Eesti</option>
-                <option value="lv">Latviešu</option>
-                <option value="lt">Lietuvių</option>
-                <option value="hu">Magyar</option>
-                <option value="ro">Română</option>
-                <option value="el">Ελληνικά</option>
-                <option value="he">עברית</option>
-                <option value="th">ไทย</option>
-                <option value="vi">Tiếng Việt</option>
-                <option value="id">Indonesia</option>
-                <option value="ms">Melayu</option>
-            </select>
-            
-            <input type="text" id="contextField" class="context-field" placeholder="Context/requirements (e.g., male speaker, preferred terms)" maxlength="250">
-            
-            <button class="translate-btn" id="translateBtn">
-                <span class="btn-text">Translate</span>
-                <div class="loading" id="loading">
-                    <div class="spinner"></div>
-                    <span>Translating...</span>
-                </div>
-            </button>
+            <input type="text" id="contextField" class="context-field context-field-mobile" placeholder="Context/requirements (e.g., male speaker, preferred terms)" maxlength="250">
+            <div class="controls-row">
+                <select id="sourceLang" class="language-select">
+                    <option value="auto">Detect language</option>
+                    <option value="en">English</option>
+                    <option value="ru">Русский</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="it">Italiano</option>
+                    <option value="pt">Português</option>
+                    <option value="zh">中文</option>
+                    <option value="ja">日本語</option>
+                    <option value="ko">한국어</option>
+                    <option value="ar">العربية</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="tr">Türkçe</option>
+                    <option value="pl">Polski</option>
+                    <option value="nl">Nederlands</option>
+                    <option value="sv">Svenska</option>
+                    <option value="da">Dansk</option>
+                    <option value="no">Norsk</option>
+                    <option value="fi">Suomi</option>
+                    <option value="cs">Čeština</option>
+                    <option value="uk">Українська</option>
+                    <option value="bg">Български</option>
+                    <option value="hr">Hrvatski</option>
+                    <option value="sk">Slovenčina</option>
+                    <option value="sl">Slovenščina</option>
+                    <option value="et">Eesti</option>
+                    <option value="lv">Latviešu</option>
+                    <option value="lt">Lietuvių</option>
+                    <option value="hu">Magyar</option>
+                    <option value="ro">Română</option>
+                    <option value="el">Ελληνικά</option>
+                    <option value="he">עברית</option>
+                    <option value="th">ไทย</option>
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="id">Indonesia</option>
+                    <option value="ms">Melayu</option>
+                </select>
+                <button class="swap-btn" id="swapBtn">⇄</button>
+                <select id="targetLang" class="language-select">
+                    <option value="ru">Русский</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="it">Italiano</option>
+                    <option value="pt">Português</option>
+                    <option value="zh">中文</option>
+                    <option value="ja">日本語</option>
+                    <option value="ko">한국어</option>
+                    <option value="ar">العربية</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="tr">Türkçe</option>
+                    <option value="pl">Polski</option>
+                    <option value="nl">Nederlands</option>
+                    <option value="sv">Svenska</option>
+                    <option value="da">Dansk</option>
+                    <option value="no">Norsk</option>
+                    <option value="fi">Suomi</option>
+                    <option value="cs">Čeština</option>
+                    <option value="uk">Українська</option>
+                    <option value="bg">Български</option>
+                    <option value="hr">Hrvatski</option>
+                    <option value="sk">Slovenčina</option>
+                    <option value="sl">Slovenščina</option>
+                    <option value="et">Eesti</option>
+                    <option value="lv">Latviešu</option>
+                    <option value="lt">Lietuvių</option>
+                    <option value="hu">Magyar</option>
+                    <option value="ro">Română</option>
+                    <option value="el">Ελληνικά</option>
+                    <option value="he">עברית</option>
+                    <option value="th">ไทย</option>
+                    <option value="vi">Tiếng Việt</option>
+                    <option value="id">Indonesia</option>
+                    <option value="ms">Melayu</option>
+                </select>
+                <input type="text" id="contextFieldDesktop" class="context-field context-field-desktop" placeholder="Context/requirements (e.g., male speaker, preferred terms)" maxlength="250">
+                <button class="translate-btn" id="translateBtn">
+                    <span class="btn-text">Translate</span>
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <span>Translating...</span>
+                    </div>
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
         // Language mapping
         const languages = {
-            'en': 'English', 'ru': 'Русский', 'es': 'Español', 'fr': 'Français', 'de': 'Deutsch', 
+            'auto': 'Detect language', 'en': 'English', 'ru': 'Русский', 'es': 'Español', 'fr': 'Français', 'de': 'Deutsch', 
             'it': 'Italiano', 'pt': 'Português', 'zh': '中文', 'ja': '日本語', 'ko': '한국어', 
             'ar': 'العربية', 'hi': 'हिन्दी', 'tr': 'Türkçe', 'pl': 'Polski', 'nl': 'Nederlands', 
             'sv': 'Svenska', 'da': 'Dansk', 'no': 'Norsk', 'fi': 'Suomi', 'cs': 'Čeština', 
@@ -479,6 +539,19 @@
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
             document.getElementById('successMessage').style.display = 'none';
+            
+            // Trigger animation
+            setTimeout(() => {
+                errorDiv.classList.add('show');
+            }, 10);
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 300);
+            }, 5000);
         }
 
         function showSuccess(message) {
@@ -486,11 +559,32 @@
             successDiv.textContent = message;
             successDiv.style.display = 'block';
             document.getElementById('errorMessage').style.display = 'none';
+            
+            // Trigger animation
+            setTimeout(() => {
+                successDiv.classList.add('show');
+            }, 10);
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                successDiv.classList.remove('show');
+                setTimeout(() => {
+                    successDiv.style.display = 'none';
+                }, 300);
+            }, 5000);
         }
 
         function hideMessages() {
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            
+            errorDiv.classList.remove('show');
+            successDiv.classList.remove('show');
+            
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+            }, 300);
         }
 
         function swapLanguages() {
@@ -544,7 +638,7 @@
             loading.style.display = 'flex';
 
             try {
-                const sourceLanguageName = languages[sourceLang] || sourceLang;
+                const sourceLanguageName = sourceLang === 'auto' ? 'the detected language' : (languages[sourceLang] || sourceLang);
                 const targetLanguageName = languages[targetLang] || targetLang;
                 
                 console.log('🌐 Translating:', {
@@ -554,8 +648,14 @@
                     context: context || 'none'
                 });
 
-                let prompt = `Translate the following text from ${sourceLanguageName} to ${targetLanguageName}. 
+                let prompt;
+                if (sourceLang === 'auto') {
+                    prompt = `Detect the language of the following text and translate it to ${targetLanguageName}. 
 Provide only the translation without any additional explanations, formatting, or quotation marks.`;
+                } else {
+                    prompt = `Translate the following text from ${sourceLanguageName} to ${targetLanguageName}. 
+Provide only the translation without any additional explanations, formatting, or quotation marks.`;
+                }
                 
                 if (context) {
                     prompt += `\n\nNote: ${context}`;
@@ -577,7 +677,7 @@ Provide only the translation without any additional explanations, formatting, or
                                 content: prompt
                             }
                         ],
-                        max_tokens: 1000,
+                        max_tokens: 3000,
                         temperature: 0.3
                     })
                 });
@@ -658,6 +758,14 @@ Provide only the translation without any additional explanations, formatting, or
                     console.error('Failed to copy text: ', err);
                 });
             }
+        });
+
+        // Clear source text
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            document.getElementById('sourceText').value = '';
+            document.getElementById('targetText').value = '';
+            updateCharCount();
+            hideMessages();
         });
     </script>
 </body>
