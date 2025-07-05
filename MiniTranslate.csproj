@@ -9,8 +9,8 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <AssemblyTitle>MiniTranslate</AssemblyTitle>
     <AssemblyDescription>Quick translator and website launcher with configurable hotkeys</AssemblyDescription>
-    <AssemblyVersion>1.2.2.0</AssemblyVersion>
-    <FileVersion>1.2.2.0</FileVersion>
+    <AssemblyVersion>1.2.3.0</AssemblyVersion>
+    <FileVersion>1.2.3.0</FileVersion>
     <AssemblyName>MiniTranslate</AssemblyName>
   </PropertyGroup>
 

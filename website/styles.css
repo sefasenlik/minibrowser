@@ -1,0 +1,332 @@
+/* Base theme colors */
+:root {
+  --bg: #101010;
+  --accent: #38b7a1;
+  --text: #ffffff;
+  --text-muted: #bbbbbb;
+}
+
+/* Global styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Containers */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Navigation bar */
+.navbar {
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(16, 16, 16, 0.95);
+  border-bottom: 1px solid #1e1e1e;
+  z-index: 999;
+}
+
+.logo {
+  height: 42px;
+}
+
+.navbar .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.75rem;
+}
+
+.nav-links a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: var(--accent);
+}
+
+/* Hero section */
+.hero {
+  padding: 8rem 0 6rem;
+  background: linear-gradient(135deg, #101010 0%, #0d0d0d 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "Hello, I am your alien translator! Привет, я твой переводчик-чужик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare!Hello, I am your alien translator! Привет, я твой переводчик-чужик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare!Hello, I am your alien translator! Привет, я твой переводчик-чужик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare!Hello, I am your alien translator! Привет, я твой переводчик-чужик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare!Hello, I am your alien translator! Привет, я твой переводчик-чужик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare!Hello, I am your alien translator! Привет, я твой переводчик-чужик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare!Hello, I am your alien translator! Привет, я твой переводчик-чужик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare!Hello, I am your alien translator! Привет, я твой переводчик-чужик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare! Hello, I am your alien translator! Привет, я твой инопланетный переводчик! ¡Hola, soy tu traductor alienígena! Bonjour, je suis votre traducteur extraterrestre! Hallo, ich bin Ihr außerirdischer Übersetzer! Ciao, sono il tuo traduttore alieno! Olá, sou seu tradutor alienígena! こんにちは、私はあなたのエイリアン翻訳者です！ 안녕하세요, 저는 당신의 외계인 번역가입니다! 你好，我是你的外星翻译！ Merhaba, ben senin uzaylı çevirmeninim! Witaj, jestem twoim kosmicznym tłumaczem! Здраво, ја сам твој ванземаљски преводилац! Xin chào, tôi là phiên dịch viên ngoài hành tinh của bạn! Hallå, jag är din utomjordiska översättare!";
+  position: absolute;
+  top: -50px;
+  left: -50px;
+  right: -50px;
+  bottom: -50px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.05);
+  font-weight: 400;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  transform: rotate(-3deg);
+  z-index: 1;
+  pointer-events: none;
+  user-select: none;
+  text-align: center;
+  padding: 20px;
+}
+
+.hero-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-image-box {
+  background: transparent;
+  border-radius: 2.5rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 400px;
+  max-width: 520px;
+  width: 100%;
+}
+
+.hero-image {
+  border-radius: 2rem;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  box-shadow: 0 0 120px rgba(56,183,161,0.20), 0 0 240px rgba(56,183,161,0.10);
+}
+
+.hero-text {
+  flex: 1 1 400px;
+  min-width: 320px;
+  text-align: left;
+  max-width: 600px;
+}
+
+.hero-text h1 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.hero-text p {
+  font-size: 1.15rem;
+  max-width: 700px;
+  margin: 0 0 2rem 0;
+  color: var(--text-muted);
+}
+
+.download-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-small {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+  margin-left: 0;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  align-items: flex-start;
+}
+
+.btn.secondary {
+  background: #fff;
+  color: var(--bg);
+  border: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.btn.secondary:hover {
+  background: #f3f3f3;
+  color: var(--accent);
+}
+
+@media (max-width: 1100px) {
+  .hero-content {
+    gap: 2rem;
+    max-width: 98vw;
+  }
+  .hero-image-box {
+    min-width: 280px;
+    max-width: 350px;
+    padding: 1.2rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    max-width: 100vw;
+  }
+  .hero-text {
+    text-align: center;
+  }
+  .hero-buttons {
+    justify-content: center;
+    align-items: center;
+  }
+  .download-group {
+    align-items: center;
+  }
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.75rem;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.btn.primary:hover {
+  background: #2da58c;
+  transform: translateY(-2px);
+}
+
+.btn-large {
+  font-size: 1.1rem;
+  padding: 1rem 2.25rem;
+}
+
+/* Features */
+.features {
+  padding: 6rem 0;
+}
+
+.features .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.feature-card {
+  background: #161616;
+  border: 1px solid #1e1e1e;
+  border-radius: 8px;
+  padding: 2rem;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+}
+
+.feature-card h3 {
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+}
+
+.feature-card p {
+  color: var(--text-muted);
+}
+
+/* How it works section */
+.how-it-works {
+  padding: 6rem 0;
+  background: #0c0c0c;
+  border-top: 1px solid #151515;
+  border-bottom: 1px solid #151515;
+}
+
+.how-it-works h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.how-it-works p {
+  max-width: 700px;
+  margin: 0 auto;
+  color: var(--text-muted);
+}
+
+/* Call to action */
+.cta {
+  padding: 6rem 0 7rem;
+  text-align: center;
+}
+
+.cta h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.cta .muted {
+  margin-top: 1rem;
+  color: var(--text-muted);
+}
+
+/* Footer */
+footer {
+  padding: 2rem 0;
+  text-align: center;
+  border-top: 1px solid #1e1e1e;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* Utils */
+section {
+  scroll-margin-top: 100px; /* offset for fixed navbar */
+} 
